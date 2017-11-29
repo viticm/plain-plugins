@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_LUA_CACHE_H_
 #define PF_PLUGIN_LUA_CACHE_H_
 
-#include "config.h"
+#include "pf/plugin/lua/config.h"
 
 enum {
   kCacheInvalid = -1,

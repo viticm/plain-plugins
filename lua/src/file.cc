@@ -1,6 +1,6 @@
 #include "pf/file/tab.h"
 #include "pf/file/ini.h"
-#include "file.h"
+#include "pf/plugin/lua/file.h"
 
 #define TAB_PUSHVALUE(L, obj, line, column) { \
   switch ((obj).get_fieldtype(column)) { \

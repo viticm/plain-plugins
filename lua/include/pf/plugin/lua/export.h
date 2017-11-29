@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_LUA_EXPORT_H_
 #define PF_PLUGIN_LUA_EXPORT_H_
 
-#include "config.h"
+#include "pf/plugin/lua/config.h"
 #include "pf/basic/type/variable.h"
 
 #endif //PF_PLUGIN_LUA_EXPORT_H_

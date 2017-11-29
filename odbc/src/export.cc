@@ -1,6 +1,6 @@
 #include "pf/db/config.h"
-#include "system.h"
-#include "export.h"
+#include "pf/plugin/odbc/system.h"
+#include "pf/plugin/odbc/export.h"
 
 pf_db::Interface *env_creator() {
   return new pf_plugin::odbc::System();

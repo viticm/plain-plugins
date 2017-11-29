@@ -2,7 +2,7 @@
 #include "pf/basic/util.h"
 #include "pf/basic/time_manager.h"
 #include "pf/sys/memory/dynamic_allocator.h"
-#include "system.h"
+#include "pf/plugin/lua/system.h"
 
 using namespace pf_plugin::lua;
 

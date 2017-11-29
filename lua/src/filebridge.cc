@@ -2,7 +2,7 @@
 #include "pf/basic/string.h"
 #include "pf/basic/logger.h"
 #include "pf/script/config.h"
-#include "filebridge.h"
+#include "pf/plugin/lua/filebridge.h"
 
 using namespace pf_basic;
 

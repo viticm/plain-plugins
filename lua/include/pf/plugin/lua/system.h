@@ -11,9 +11,9 @@
 #ifndef PF_PLUGIN_LUA_SYSTEM_H_
 #define PF_PLUGIN_LUA_SYSTEM_H_
 
-#include "config.h"
+#include "pf/plugin/lua/config.h"
 #include "pf/script/interface.h"
-#include "filebridge.h"
+#include "pf/plugin/lua/filebridge.h"
 
 namespace pf_plugin {
 

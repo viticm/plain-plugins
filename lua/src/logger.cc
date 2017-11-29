@@ -1,5 +1,5 @@
 #include "pf/basic/logger.h"
-#include "logger.h"
+#include "pf/plugin/lua/logger.h"
 
 #define SCRIPT_MODULENAME "script"
 

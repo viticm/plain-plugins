@@ -1,8 +1,8 @@
-#include "file.h"
-#include "logger.h"
-#include "cache.h"
-#include "export.h"
-#include "system.h"
+#include "pf/plugin/lua/file.h"
+#include "pf/plugin/lua/logger.h"
+#include "pf/plugin/lua/cache.h"
+#include "pf/plugin/lua/export.h"
+#include "pf/plugin/lua/system.h"
 
 static const struct luaL_Reg filetable[] = {
   {"opentab", file_opentab},

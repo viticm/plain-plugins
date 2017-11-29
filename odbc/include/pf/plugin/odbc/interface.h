@@ -12,7 +12,7 @@
 #ifndef PF_PLUGIN_ODBC_INTERFACE_H_
 #define PF_PLUGIN_ODBC_INTERFACE_H_
 
-#include "config.h"
+#include "pf/plugin/odbc/config.h"
 #include "pf/sys/memory/dynamic_allocator.h"
 #include "pf/util/compressor/mini.h"
 

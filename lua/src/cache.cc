@@ -4,7 +4,7 @@
 #include "pf/basic/io.tcc"
 #include "pf/basic/stringstream.h"
 #include "pf/basic/monitor.h"
-#include "cache.h"
+#include "pf/plugin/lua/cache.h"
 
 #define CACHE_PARAM_COUNT (3)
 #define check_lua_argc(L,n) Assert(lua_gettop((L)) == (n))

@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_PROTOCOL_BASIC_H_
 #define PF_PLUGIN_PROTOCOL_BASIC_H_
 
-#include "pf_plugin/protocol/config.h"
+#include "pf/plugin/protocol/config.h"
 
 namespace pf_plugin {
 

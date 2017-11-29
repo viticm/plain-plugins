@@ -1,8 +1,8 @@
 #include "pf/basic/util.h"
 #include "pf/basic/logger.h"
 #include "pf/basic/time_manager.h"
-#include "interface.h"
-#include "system.h"
+#include "pf/plugin/odbc/interface.h"
+#include "pf/plugin/odbc/system.h"
 
 namespace pf_plugin {
 

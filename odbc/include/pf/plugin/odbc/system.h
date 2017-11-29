@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_ODBC_SYSTEM_H_
 #define PF_PLUGIN_ODBC_SYSTEM_H_
 
-#include "config.h"
+#include "pf/plugin/odbc/config.h"
 #include "pf/db/interface.h"
 #include "pf/basic/tinytimer.h"
 

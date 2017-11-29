@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_LUA_LOG_H_
 #define PF_PLUGIN_LUA_LOG_H_
 
-#include "config.h"
+#include "pf/plugin/lua/config.h"
 
 PF_PLUGIN_API int32_t slow_log(lua_State *L);
 PF_PLUGIN_API int32_t slow_errorlog(lua_State *L);

@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_PROTOCOL_LARGE_PACKET_H_
 #define PF_PLUGIN_PROTOCOL_LARGE_PACKET_H_
 
-#include "pf_plugin/protocol/basic.h"
+#include "pf/plugin/protocol/basic.h"
 
 namespace pf_plugin {
 

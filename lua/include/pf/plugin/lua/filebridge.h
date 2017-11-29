@@ -11,7 +11,7 @@
 #ifndef PF_PLUGIN_LUA_FILEBRIDGE_H_
 #define PF_PLUGIN_LUA_FILEBRIDGE_H_
 
-#include "config.h"
+#include "pf/plugin/lua/config.h"
 #include "pf/basic/string.h"
 
 namespace pf_plugin {
