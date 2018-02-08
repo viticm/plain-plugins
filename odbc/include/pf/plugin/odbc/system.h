@@ -48,7 +48,7 @@ class PF_API System : public pf_db::Interface {
    virtual bool query(const std::string &sql_str);
    virtual bool fetch(int32_t orientation = 1, int32_t offset = 0);
    virtual int32_t get_affectcount() const;
-   virtual bool check_db_connect();
+   virtual bool check_db_connect(bool directly);
    bool isready() const { return isready_; };
    virtual bool getresult() const;
    virtual int32_t get_columncount() const;
