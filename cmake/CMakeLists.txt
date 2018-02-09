@@ -81,7 +81,8 @@ set(pf_plugin_SOURCE_DIR "..")
 # Where Plain Framework's .h files can be found.
 include_directories(
   "${pf_plugin_SOURCE_DIR}/lua/include"
-  "${pf_plugin_SOURCE_DIR}/odbc/include")
+  "${pf_plugin_SOURCE_DIR}/odbc/include"
+  "/usr/local/unixODBC/include")
 
 # Summary of tuple support for Microsoft Visual Studio:
 # Compiler    version(MS)  version(cmake)  Support
