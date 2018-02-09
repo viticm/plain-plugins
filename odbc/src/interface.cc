@@ -45,7 +45,6 @@ bool Interface::connect(const char *connection_name,
                         const char *user,
                         const char *password) {
   using namespace pf_basic;
-  std::cout << "Interface::connect" << std::endl;
   close(); //first disconnect
   if (connection_name != nullptr)
     string::safecopy(connection_name_, 
