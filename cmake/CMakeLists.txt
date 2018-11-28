@@ -111,8 +111,8 @@ file(GLOB_RECURSE LIB_ODBC_SOURCES "${pf_plugin_SOURCE_DIR}/odbc/src/*.cc")
 # are used for other targets, to ensure that pf can be compiled by a user
 # aggressive about warnings.
 if (pf_plugin_build_shared)
-  cxx_shared_library(pf_plugin_lua "${cxx_default}" ${LIB_LUA_SOURCES})
-  cxx_shared_library(pf_plugin_odbc "${cxx_default}" ${LIB_ODBC_SOURCES})
+  cxx_shared_library(pf_plugin_lua "${cxx_default}" "lua" ${LIB_LUA_SOURCES})
+  cxx_shared_library(pf_plugin_odbc "${cxx_default}" "odbc" ${LIB_ODBC_SOURCES})
 else()
   cxx_library(pf_plugin_lua "${cxx_strict}" ${LIB_LUA_SOURCES})
   cxx_library(pf_plugin_odbc "${cxx_strict}" ${LIB_ODBC_SOURCES})
