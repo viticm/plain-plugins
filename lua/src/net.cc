@@ -362,7 +362,6 @@ int32_t net_packet_alloc(lua_State *L) {
                   " create packet failed");
     return 0;
   }
-  Dynamic *_packet = dynamic_cast<Dynamic *>(packet);
   int64_t pointer = POINTER_TOINT64(packet);
   lua_pushnumber(L, static_cast<lua_Number>(pointer));
   return 1;
