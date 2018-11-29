@@ -29,6 +29,21 @@
   } \
 }
 
+#define SCRIPT_LUA_CHECKARGC_LEAST(L, argc) { \
+  Assert(L); \
+  int32_t _argc = lua_gettop(L); \
+  if (_argc < argc) { \
+    SLOW_ERRORLOG("script", \
+                  "[script.lua] file: %s, line: %d, argc: %d, expect: >=%d", \
+                  __FILE__, \
+                  __LINE__, \
+                  _argc, \
+                  argc);\
+    return 0; \
+  } \
+}
+
+
 namespace pf_plugin {
 
 namespace lua {

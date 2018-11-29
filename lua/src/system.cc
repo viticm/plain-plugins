@@ -5,6 +5,7 @@
 #include "pf/plugin/lua/file.h"
 #include "pf/plugin/lua/logger.h"
 #include "pf/plugin/lua/cache.h"
+#include "pf/plugin/lua/net.h"
 #include "pf/plugin/lua/system.h"
 
 static const struct luaL_Reg filetable[] = {
@@ -24,6 +25,34 @@ static const struct luaL_Reg logtable[] = {
   {"fast_warning", fast_warninglog},
   {"fast_debug", fast_debuglog},
   {"fast_write", fast_writelog},
+  {NULL, NULL}
+};
+
+static const struct luaL_Reg nettable[] = {
+  {"write_int8", net_write_int8},
+  {"write_uint8", net_write_uint8},
+  {"write_int16", net_write_int16},
+  {"write_uint16", net_write_uint16},
+  {"write_int32", net_write_int32},
+  {"write_uint32", net_write_uint32},
+  {"write_int64", net_write_int64},
+  {"write_uint64", net_write_uint64},
+  {"write_string", net_write_string},
+  {"write_float", net_write_float},
+  {"write_double", net_write_double},
+  {"read_int8", net_read_int8},
+  {"read_uint8", net_read_uint8},
+  {"read_int16", net_read_int16},
+  {"read_uint16", net_read_uint16},
+  {"read_int32", net_read_int32},
+  {"read_uint32", net_read_uint32},
+  {"read_int64", net_read_int64},
+  {"read_uint64", net_read_uint64},
+  {"read_string", net_read_string},
+  {"read_float", net_read_float},
+  {"read_double", net_read_double},
+  {"packet_alloc", net_packet_alloc},
+  {"send", net_send},
   {NULL, NULL}
 };
 
@@ -59,6 +88,7 @@ bool System::init() {
   luaL_register(lua_state_, "file", filetable); 
   luaL_register(lua_state_, "logger", logtable);
   dcache_register(lua_state_);
+  luaL_register(lua_state_, "net", nettable);
 
   return true;
 }
