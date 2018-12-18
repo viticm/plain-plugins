@@ -79,6 +79,7 @@ bool System::init() {
   open_libs();
   setglobal("ROOTPATH", filebridge_.get_rootpath());
   setglobal("WORKPATH", filebridge_.get_rootpath());
+  setglobal("BASEPATH", GLOBALS["app.basepath"].c_str());
 #if OS_UNIX
   setglobal("OS_UNIX", true);
 #elif OS_WIN
