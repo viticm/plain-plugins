@@ -129,7 +129,7 @@ macro(config_compiler_and_linker)
   endif()
   
   # Plain Framework core flags.
-  set(cxx_base_flags "${cxx_base_flags} -std=c++11 -DPF_CORE -DPF_OPEN_EPOLL")
+  set(cxx_base_flags "${cxx_base_flags} -std=c++11 -DPF_CORE -DPF_OPEN_EPOLL -DLUA_COMPAT_MODULE")
   
   set(cxx_base_flags "${cxx_base_flags} ${PF_HAS_PTHREAD_MACRO}")
 

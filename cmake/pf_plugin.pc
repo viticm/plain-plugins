@@ -1,5 +1,5 @@
-libdir=/lib
-includedir=/include
+libdir=/usr/local/lib
+includedir=/usr/local/include
 
 Name: pf_plugin
 Description: PlainFramework (without main() function)
