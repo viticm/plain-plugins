@@ -19,8 +19,7 @@ endif()
 
 # Save the plainframework directory, store this in the cache so that it's globally
 # accessible from plainframework_configure_flags().
-set(root_dir ${CMAKE_CURRENT_LIST_DIR}/../.. CACHE INTERNAL "plainframework root directory")
-set(plainframework_dir ${root_dir}/framework/core CACHE INTERNAL "plainframework directory")
+set(root_dir ${CMAKE_CURRENT_LIST_DIR}/../.. CACHE INTERNAL "plainframework plugin root directory")
 
 # Modify CMAKE_C_FLAGS and CMAKE_CXX_FLAGS to enable a maximum reasonable
 # warning level.

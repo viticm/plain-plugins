@@ -108,11 +108,20 @@ void System::release() {
 bool System::load(const std::string &filename) {
   using namespace pf_sys;
   if (is_null(lua_state_)) return false;
-#if LUA_VERSION_NUM >= 900 //This way has some error(loadfile no error code).
+#if LUA_VERSION_NUM >= 502 //This way has some error(loadfile no error code).
   char fullpath[FILENAME_MAX]{0};
   filebridge_.get_fullpath(fullpath, filename.c_str(), sizeof(fullpath) - 1);
   SLOW_DEBUGLOG("test", "full: %s", fullpath);
-  luaL_dofile(lua_state_, fullpath);
+  auto ret = luaL_dofile(lua_state_, fullpath);
+  if (1 == ret) {
+   SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (System::load) load file %s"
+                  " failed:\n%s",
+                  filename.c_str(),
+                  lua_tostring(lua_state_, -1));
+
+    return false;
+  }
 #else
   uint64_t size;
   if (!filebridge_.open(filename.c_str())) {

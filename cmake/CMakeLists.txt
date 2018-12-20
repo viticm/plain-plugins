@@ -47,7 +47,7 @@ endif()
 # Name of the project.
 #
 # CMake files in this project can refer to the root source directory
-# as ${pf_plugin_SOURCE_DIR} and to the root binary directory as
+# as ${root_dir} and to the root binary directory as
 # ${pf_plugin_BINARY_DIR}.
 # Language "C" is required for find_package(Threads).
 if (CMAKE_VERSION VERSION_LESS 3.0)
@@ -76,12 +76,11 @@ include(inc/internal_utils.cmake)
 
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
-set(pf_plugin_SOURCE_DIR "..")
-
 # Where Plain Framework's .h files can be found.
 include_directories(
-  "${pf_plugin_SOURCE_DIR}/lua/include"
-  "${pf_plugin_SOURCE_DIR}/odbc/include"
+  "${root_dir}/lua/include"
+  "${root_dir}/odbc/include"
+  "${root_dir}/dependencies/lua/5.3.5/src"
   "/usr/local/unixODBC/include")
 
 # Summary of tuple support for Microsoft Visual Studio:
@@ -104,14 +103,20 @@ endif()
 set(pf_plugin_build_shared ON)
 set(INSTALL_PF_PLUGIN ON)
 
-file(GLOB_RECURSE LIB_LUA_SOURCES "${pf_plugin_SOURCE_DIR}/lua/src/*.cc")
-file(GLOB_RECURSE LIB_ODBC_SOURCES "${pf_plugin_SOURCE_DIR}/odbc/src/*.cc")
+#The lua plugin with lua code.
+file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/*.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/lua.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/luac.c")
+file(GLOB_RECURSE LIB_LUA_SOURCES "${root_dir}/lua/src/*.cc")
+list(APPEND LIB_LUA_SOURCES ${LIB_DEPS_LUA_SOURCES})
+
+file(GLOB_RECURSE LIB_ODBC_SOURCES "${root_dir}/odbc/src/*.cc")
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
 # are used for other targets, to ensure that pf can be compiled by a user
 # aggressive about warnings.
 if (pf_plugin_build_shared)
-  cxx_shared_library(pf_plugin_lua "${cxx_default}" "lua" ${LIB_LUA_SOURCES})
+  cxx_shared_library(pf_plugin_lua "${cxx_default}" "" ${LIB_LUA_SOURCES})
   cxx_shared_library(pf_plugin_odbc "${cxx_default}" "odbc" ${LIB_ODBC_SOURCES})
 else()
   cxx_library(pf_plugin_lua "${cxx_strict}" ${LIB_LUA_SOURCES})
@@ -122,14 +127,16 @@ endif()
 # to the targets for when we are part of a parent build (ie being pulled
 # in via add_subdirectory() rather than being a standalone build).
 if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.12")
-  #target_include_directories(pf_plugin_core      SYSTEM INTERFACE "${pf_plugin_SOURCE_DIR}/include")
+  #target_include_directories(pf_plugin_core      SYSTEM INTERFACE "${root_dir}/include")
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ########################################################################
 #
 # Install rules
 if(INSTALL_PF_PLUGIN)
-  
+
   install(TARGETS pf_plugin_lua
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -140,13 +147,13 @@ if(INSTALL_PF_PLUGIN)
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
-  install(DIRECTORY "${pf_plugin_SOURCE_DIR}/lua/include/pf"
+  install(DIRECTORY "${root_dir}/lua/include/pf"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-  install(DIRECTORY "${pf_plugin_SOURCE_DIR}/odbc/include/pf"
+  install(DIRECTORY "${root_dir}/odbc/include/pf"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-  install(DIRECTORY "${pf_plugin_SOURCE_DIR}/protocol/include/pf"
+  install(DIRECTORY "${root_dir}/protocol/include/pf"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
   # configure and install pkgconfig files
