@@ -404,7 +404,31 @@ int32_t net_send(lua_State *L) {
     result = 0;
   } else {
     connection->send(packet);
+    lua_pushboolean(L, 1);
   }
   NET_PACKET_FACTORYMANAGER_POINTER->packet_remove(packet);
   return result;
+}
+
+int32_t net_connect(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 4);
+  auto count = lua_gettop(L);
+  auto name = lua_tostring(L, 1);
+  auto ip = lua_tostring(L, 2);
+  auto port = static_cast<uint16_t>(lua_tointeger(L, 3));
+  auto userclient = static_cast<bool>(lua_toboolean(L, 4));
+  std::string encrypt_str{""};
+  if (count > 4) encrypt_str = lua_tostring(L, 5);
+  pf_net::connection::Basic *connection{nullptr};
+  if (userclient) {
+    connection = ENGINE_POINTER->connect(name, ip, port, encrypt_str);
+  } else {
+    connection = ENGINE_POINTER->default_connect(name, ip, port, encrypt_str);
+  }
+  if (is_null(connection)) {
+    lua_pushnumber(L, -1);
+  } else {
+    lua_pushnumber(L, connection->get_id());
+  }
+  return 1;
 }

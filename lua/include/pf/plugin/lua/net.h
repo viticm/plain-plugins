@@ -44,4 +44,7 @@ int32_t net_packet_alloc(lua_State *L);
 //And the packet pointer will remove after this function.
 int32_t net_send(lua_State *L);
 
+//Connect by user(return -1 mean not connected).
+int32_t net_connect(lua_State *L);
+
 #endif //PF_PLUGIN_LUA_NET_H_

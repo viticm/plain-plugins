@@ -53,6 +53,7 @@ static const struct luaL_Reg nettable[] = {
   {"read_double", net_read_double},
   {"packet_alloc", net_packet_alloc},
   {"send", net_send},
+  {"connect", net_connect},
   {NULL, NULL}
 };
 
