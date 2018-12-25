@@ -38,6 +38,7 @@ int32_t net_read_uint64(lua_State *L);
 int32_t net_read_string(lua_State *L);
 int32_t net_read_float(lua_State *L);
 int32_t net_read_double(lua_State *L);
+int32_t net_read_id(lua_State *L);
 int32_t net_packet_alloc(lua_State *L);
 
 //Use this interface will check your listener and connector name must be different.

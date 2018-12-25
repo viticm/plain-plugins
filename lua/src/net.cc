@@ -345,6 +345,21 @@ int32_t net_read_double(lua_State *L) {
   return 1;
 }
 
+int32_t net_read_id(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 1);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_read_id)"
+                  " pointer is null");
+    return 0;
+  }
+  double value = static_cast<lua_Number>(packet->get_id());
+  lua_pushnumber(L, value);
+  return 1;
+}
+
 int32_t net_packet_alloc(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   uint16_t packetid = static_cast<uint16_t>(lua_tointeger(L, 1));
@@ -411,19 +426,23 @@ int32_t net_send(lua_State *L) {
 }
 
 int32_t net_connect(lua_State *L) {
-  SCRIPT_LUA_CHECKARGC_LEAST(L, 4);
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
   auto count = lua_gettop(L);
-  auto name = lua_tostring(L, 1);
-  auto ip = lua_tostring(L, 2);
-  auto port = static_cast<uint16_t>(lua_tointeger(L, 3));
-  auto userclient = static_cast<bool>(lua_toboolean(L, 4));
-  std::string encrypt_str{""};
-  if (count > 4) encrypt_str = lua_tostring(L, 5);
   pf_net::connection::Basic *connection{nullptr};
-  if (userclient) {
-    connection = ENGINE_POINTER->connect(name, ip, port, encrypt_str);
-  } else {
-    connection = ENGINE_POINTER->default_connect(name, ip, port, encrypt_str);
+  auto name = lua_tostring(L, 1);
+  if (1 == count) {
+    connection = ENGINE_POINTER->connect(name);
+  } else if (count >= 4) {
+    auto ip = lua_tostring(L, 2);
+    auto port = static_cast<uint16_t>(lua_tointeger(L, 3));
+    auto userclient = static_cast<bool>(lua_toboolean(L, 4));
+    std::string encrypt_str{""};
+    if (count > 4) encrypt_str = lua_tostring(L, 5);
+    if (userclient) {
+      connection = ENGINE_POINTER->connect(name, ip, port, encrypt_str);
+    } else {
+      connection = ENGINE_POINTER->default_connect(name, ip, port, encrypt_str);
+    }
   }
   if (is_null(connection)) {
     lua_pushnumber(L, -1);

@@ -51,6 +51,7 @@ static const struct luaL_Reg nettable[] = {
   {"read_string", net_read_string},
   {"read_float", net_read_float},
   {"read_double", net_read_double},
+  {"read_id", net_read_id},
   {"packet_alloc", net_packet_alloc},
   {"send", net_send},
   {"connect", net_connect},
@@ -112,7 +113,7 @@ bool System::load(const std::string &filename) {
 #if LUA_VERSION_NUM >= 502 //This way has some error(loadfile no error code).
   char fullpath[FILENAME_MAX]{0};
   filebridge_.get_fullpath(fullpath, filename.c_str(), sizeof(fullpath) - 1);
-  SLOW_DEBUGLOG("test", "full: %s", fullpath);
+  //SLOW_DEBUGLOG("test", "full: %s", fullpath);
   auto ret = luaL_dofile(lua_state_, fullpath);
   if (1 == ret) {
    SLOW_ERRORLOG(SCRIPT_MODULENAME,
@@ -174,7 +175,7 @@ bool System::load(const std::string &filename) {
                   filename.c_str());
     return false;
   }
-#endif //LUA_VERSION_NUM >= 500
+#endif //LUA_VERSION_NUM >= 502
   return true;
 }
 
