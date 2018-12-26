@@ -48,4 +48,8 @@ int32_t net_send(lua_State *L);
 //Connect by user(return -1 mean not connected).
 int32_t net_connect(lua_State *L);
 
+//Set or get the connection name.
+//@param uint16_t connid The connection id.
+int32_t net_conn_name(lua_State *L);
+
 #endif //PF_PLUGIN_LUA_NET_H_

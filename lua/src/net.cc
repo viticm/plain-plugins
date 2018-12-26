@@ -1,6 +1,7 @@
 #include "pf/net/packet/interface.h"
 #include "pf/net/packet/factorymanager.h"
 #include "pf/net/packet/dynamic.h"
+#include "pf/net/packet/register_connection_name.h"
 #include "pf/net/connection/basic.h"
 #include "pf/net/connection/manager/basic.h"
 #include "pf/net/connection/manager/listener.h"
@@ -305,7 +306,7 @@ int32_t net_read_string(lua_State *L) {
   Dynamic *packet = packet_get(pointer);
   if (is_null(packet)) {
     SLOW_ERRORLOG(SCRIPT_MODULENAME,
-                  "[script.lua] (net_read_uint64)"
+                  "[script.lua] (net_read_string)"
                   " pointer is null");
     return 0;
   }
@@ -422,6 +423,45 @@ int32_t net_send(lua_State *L) {
     lua_pushboolean(L, 1);
   }
   NET_PACKET_FACTORYMANAGER_POINTER->packet_remove(packet);
+  return result;
+}
+
+int32_t net_conn_name(lua_State *L) {
+  using namespace pf_net::connection;
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
+  auto count = lua_gettop(L);
+  auto connid = static_cast<uint16_t>(lua_tonumber(L, 1));
+  std::string name{""}; 
+  Basic *connection{nullptr};
+  int32_t result{0};
+  manager::Basic *manager{nullptr};
+  if (1 == count || lua_isnil(L, 2)) {
+    if (ENGINE_POINTER->get_net()) {
+      manager = ENGINE_POINTER->get_net();
+    }
+  } else {
+    std::string service_name = lua_tostring(L, 2);
+    if (service_name != "") {
+      manager = ENGINE_POINTER->get_listener(service_name);
+    } else {
+      manager = ENGINE_POINTER->get_connector_manager();
+    }
+  }
+  if (!is_null(manager)) connection = manager->get(connid);
+  if (count >= 3 && !is_null(connection)) {
+    name = lua_tostring(L, 3);
+    //Register name.
+    connection->set_name(name);
+    pf_net::packet::RegisterConnectionName regname;
+    regname.set_name(name);
+    connection->send(&regname);
+    manager->set_connection_name(connection->get_id(), name);
+  }
+  if (!is_null(connection)) name = connection->name();
+  if (name != "") {
+    result = 1;
+    lua_pushstring(L, name.c_str());
+  }
   return result;
 }
 
