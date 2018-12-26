@@ -289,6 +289,13 @@ bool System::call(const std::string &name,
     return false;
   }
   lua_getglobal(lua_state_, name.c_str());
+  if (lua_isnil(lua_state_, -1)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (System::call) can't get global value,"
+                  " function: %s",
+                  name.c_str());
+    return false;
+  }
   uint32_t paramcount = static_cast<uint32_t>(params.size());
   uint32_t resultcount = static_cast<uint32_t>(results.size());
   for (uint32_t i = 0; i < paramcount; ++i) {
