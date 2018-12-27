@@ -50,6 +50,16 @@ int32_t net_connect(lua_State *L);
 
 //Set or get the connection name.
 //@param uint16_t connid The connection id.
+//@param mixed service_name The service name(nil use default, "" use connector
+//  manager, other name user listeners)
+//@param mixed name The set connector name(if empty just get name).
 int32_t net_conn_name(lua_State *L);
+
+//Disconnet a connection.
+//@param uint16_t connid The connection id.
+//@param mixed service_name The service name(nil use default, "" use connector
+//  manager, other name user listeners)
+int32_t net_disconnect(lua_State *L);
+
 
 #endif //PF_PLUGIN_LUA_NET_H_

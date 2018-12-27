@@ -491,3 +491,33 @@ int32_t net_connect(lua_State *L) {
   }
   return 1;
 }
+
+int32_t net_disconnect(lua_State *L) {
+  using namespace pf_net::connection;
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
+  auto count = lua_gettop(L);
+  auto connid = static_cast<uint16_t>(lua_tonumber(L, 1));
+  std::string name{""}; 
+  Basic *connection{nullptr};
+  manager::Basic *manager{nullptr};
+  if (1 == count || lua_isnil(L, 2)) {
+    if (ENGINE_POINTER->get_net()) {
+      manager = ENGINE_POINTER->get_net();
+    }
+  } else {
+    std::string service_name = lua_tostring(L, 2);
+    if (service_name != "") {
+      manager = ENGINE_POINTER->get_listener(service_name);
+    } else {
+      manager = ENGINE_POINTER->get_connector_manager();
+    }
+  }
+  if (!is_null(manager)) connection = manager->get(connid);
+  bool result{false};
+  if (!is_null(connection)) {
+    result = true;
+    manager->remove(connection);
+  }
+  lua_pushboolean(L, result);
+  return 1;
+}
