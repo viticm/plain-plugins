@@ -40,6 +40,7 @@ static const struct luaL_Reg nettable[] = {
   {"write_string", net_write_string},
   {"write_float", net_write_float},
   {"write_double", net_write_double},
+  {"write_bytes", net_write_bytes},
   {"read_int8", net_read_int8},
   {"read_uint8", net_read_uint8},
   {"read_int16", net_read_int16},
@@ -51,12 +52,15 @@ static const struct luaL_Reg nettable[] = {
   {"read_string", net_read_string},
   {"read_float", net_read_float},
   {"read_double", net_read_double},
+  {"read_bytes", net_read_bytes},
   {"read_id", net_read_id},
   {"packet_alloc", net_packet_alloc},
   {"send", net_send},
   {"conn_name", net_conn_name},
   {"connect", net_connect},
   {"disconnect", net_disconnect},
+  {"routing_request", net_routing_request},
+  {"routing", net_routing},
   {NULL, NULL}
 };
 

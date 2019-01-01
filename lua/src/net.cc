@@ -2,6 +2,7 @@
 #include "pf/net/packet/factorymanager.h"
 #include "pf/net/packet/dynamic.h"
 #include "pf/net/packet/register_connection_name.h"
+#include "pf/net/packet/routing_request.h"
 #include "pf/net/connection/basic.h"
 #include "pf/net/connection/manager/basic.h"
 #include "pf/net/connection/manager/listener.h"
@@ -11,6 +12,19 @@
 #include "pf/plugin/lua/net.h"
 
 using namespace pf_net::packet;
+
+#ifndef lua_tostringex
+#define lua_tostringex(L,n) (lua_isstring((L),(n)) ? lua_tostring((L),(n)) : "")
+#endif
+
+//compatibility different version.
+#ifndef lua_rawlen
+#if LUA_VERSION_NUM == 502
+#define lua_rawlen(L,i) lua_len(L, (i))
+#elif LUA_VERSION_NUM <= 501
+#define lua_rawlen(L,i) lua_strlen(L, (i))
+#endif
+#endif
 
 #define packet_get(pointer) \
   (dynamic_cast<Dynamic *>(NET_PACKET_FACTORYMANAGER_POINTER->packet_get(pointer)))
@@ -145,8 +159,8 @@ int32_t net_write_string(lua_State *L) {
                   " pointer is null");
     return 0;
   }
-  const char *value = lua_tostring(L, 2);
-  packet->write_string(value);
+  std::string value = lua_tostringex(L, 2);
+  packet->write_string(value.c_str());
   return 0;
 }
 
@@ -180,6 +194,22 @@ int32_t net_write_double(lua_State *L) {
   return 0;
 }
 
+int32_t net_write_bytes(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 2);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_write_bytes)"
+                  " pointer is null");
+    return 0;
+  }
+  auto value = (const unsigned char *)lua_tostring(L, 2);
+  size_t size = lua_rawlen(L, 2);
+  packet->write_bytes(value, size);
+  return 0;
+}
+
 int32_t net_read_int8(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
@@ -191,7 +221,7 @@ int32_t net_read_int8(lua_State *L) {
     return 0;
   }
   int8_t value = packet->read_int8();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -206,7 +236,7 @@ int32_t net_read_uint8(lua_State *L) {
     return 0;
   }
   uint8_t value = packet->read_uint8();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -221,7 +251,7 @@ int32_t net_read_int16(lua_State *L) {
     return 0;
   }
   int16_t value = packet->read_int16();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -236,7 +266,7 @@ int32_t net_read_uint16(lua_State *L) {
     return 0;
   }
   uint16_t value = packet->read_uint16();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -251,7 +281,7 @@ int32_t net_read_int32(lua_State *L) {
     return 0;
   }
   int32_t value = packet->read_int32();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -266,7 +296,7 @@ int32_t net_read_uint32(lua_State *L) {
     return 0;
   }
   uint32_t value = packet->read_uint32();
-  lua_pushnumber(L, value);
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -346,6 +376,23 @@ int32_t net_read_double(lua_State *L) {
   return 1;
 }
 
+int32_t net_read_bytes(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 1);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_read_string)"
+                  " pointer is null");
+    return 0;
+  }
+  unsigned char value[PF_PLUGIN_LUA_NET_PACKET_STRINGMAX]{0};
+  auto size = packet->read_bytes(value, sizeof(value) - 1);
+  lua_pushlstring(L, (const char *)value, size);
+  return 1;
+}
+
+
 int32_t net_read_id(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
@@ -356,8 +403,8 @@ int32_t net_read_id(lua_State *L) {
                   " pointer is null");
     return 0;
   }
-  double value = static_cast<lua_Number>(packet->get_id());
-  lua_pushnumber(L, value);
+  auto value = packet->get_id();
+  lua_pushinteger(L, value);
   return 1;
 }
 
@@ -385,42 +432,53 @@ int32_t net_packet_alloc(lua_State *L) {
 
 int32_t net_send(lua_State *L) {
   using namespace pf_net::connection;
-  SCRIPT_LUA_CHECKARGC_LEAST(L, 2);
-  auto count = lua_gettop(L);
-  auto connid = static_cast<uint16_t>(lua_tonumber(L, 1));
-  auto pointer = static_cast<int64_t>(lua_tonumber(L, 2));
-  std::string name{""}; 
-  if (count > 2) name = lua_tostring(L, 3);
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 3);
+  std::string manager_name = lua_tostringex(L, 1);
+  manager::Basic *manager{nullptr};
+  if ("listener" == manager_name) {
+    if (lua_isnil(L, 4)) {
+     SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_send)"
+                  " can't get the listener name");
+    } else {
+      std::string listener_name = lua_tostringex(L, 4);
+      manager = ENGINE_POINTER->get_listener(listener_name);
+    }
+  } else if ("connector" == manager_name) {
+    manager = ENGINE_POINTER->get_connector_manager();
+  } else {
+    if (ENGINE_POINTER->get_net()) {
+      manager = ENGINE_POINTER->get_net();
+    }
+  }
+  Basic *connection{nullptr};
+  if (!is_null(manager)) {
+    if (lua_isnumber(L, 2)) {
+      connection = manager->get(static_cast<uint16_t>(lua_tonumber(L, 2)));
+    } else {
+      std::cout << "get connection: " << lua_tostringex(L, 2) << std::endl;;
+      connection = manager->get(lua_tostringex(L, 2));
+    }
+  }
+  auto pointer = static_cast<int64_t>(lua_tonumber(L, 3));
   Dynamic *packet = packet_get(pointer);
   if (is_null(packet)) {
     SLOW_ERRORLOG(SCRIPT_MODULENAME,
-                  "[script.lua] (net_send)"
+                  "[script.lua] (net_send) packet"
                   " pointer is null");
     return 0;
   }
-  Basic *connection{nullptr};
-  if ("default" == name || "" == name) {
-    if (ENGINE_POINTER->get_net())
-      connection = ENGINE_POINTER->get_net()->get(connid);
-  } else {
-    auto listener = ENGINE_POINTER->get_listener(name);
-    if (!is_null(listener)) {
-      connection = listener->get(connid);
-    } else {
-      connection = ENGINE_POINTER->get_connector(name);
-    }
-  }
   int32_t result{1};
-  if (is_null(connection)) {
+  if (is_null(connection) || connection->is_disconnect()) {
     SLOW_ERRORLOG(SCRIPT_MODULENAME,
                   "[script.lua] (net_send)"
-                  " can't get the connection: %s|%d",
-                  name.c_str(),
-                  connid);
+                  " can't get the connection or disconnect: %s|%s|%s",
+                  manager_name.c_str(),
+                  lua_tostringex(L, 2),
+                  lua_tostringex(L, 4));
     result = 0;
   } else {
-    connection->send(packet);
-    lua_pushboolean(L, 1);
+    lua_pushboolean(L, connection->send(packet));
   }
   NET_PACKET_FACTORYMANAGER_POINTER->packet_remove(packet);
   return result;
@@ -428,28 +486,33 @@ int32_t net_send(lua_State *L) {
 
 int32_t net_conn_name(lua_State *L) {
   using namespace pf_net::connection;
-  SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
-  auto count = lua_gettop(L);
-  auto connid = static_cast<uint16_t>(lua_tonumber(L, 1));
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 2);
+  std::string manager_name = lua_tostringex(L, 1);
+  auto connid = static_cast<uint16_t>(lua_tonumber(L, 2));
   std::string name{""}; 
   Basic *connection{nullptr};
   int32_t result{0};
   manager::Basic *manager{nullptr};
-  if (1 == count || lua_isnil(L, 2)) {
+  if ("listener" == manager_name) {
+    if (lua_isnil(L, 4)) {
+     SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_send)"
+                  " can't get the listener name");
+    } else {
+      std::string listener_name = lua_tostringex(L, 4);
+      manager = ENGINE_POINTER->get_listener(listener_name);
+    }
+  } else if ("connector" == manager_name) {
+    manager = ENGINE_POINTER->get_connector_manager();
+  } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
     }
-  } else {
-    std::string service_name = lua_tostring(L, 2);
-    if (service_name != "") {
-      manager = ENGINE_POINTER->get_listener(service_name);
-    } else {
-      manager = ENGINE_POINTER->get_connector_manager();
-    }
   }
+
   if (!is_null(manager)) connection = manager->get(connid);
-  if (count >= 3 && !is_null(connection)) {
-    name = lua_tostring(L, 3);
+  if (!lua_isnil(L, 3) && !is_null(connection)) { //Need set name.
+    name = lua_tostringex(L, 3);
     //Register name.
     connection->set_name(name);
     pf_net::packet::RegisterConnectionName regname;
@@ -469,15 +532,14 @@ int32_t net_connect(lua_State *L) {
   SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
   auto count = lua_gettop(L);
   pf_net::connection::Basic *connection{nullptr};
-  auto name = lua_tostring(L, 1);
+  std::string name = lua_tostringex(L, 1);
   if (1 == count) {
     connection = ENGINE_POINTER->connect(name);
-  } else if (count >= 4) {
-    auto ip = lua_tostring(L, 2);
+  } else if (count >= 3) {
+    std::string ip = lua_tostringex(L, 2);
     auto port = static_cast<uint16_t>(lua_tointeger(L, 3));
     auto userclient = static_cast<bool>(lua_toboolean(L, 4));
-    std::string encrypt_str{""};
-    if (count > 4) encrypt_str = lua_tostring(L, 5);
+    std::string encrypt_str = lua_tostringex(L, 5);
     if (userclient) {
       connection = ENGINE_POINTER->connect(name, ip, port, encrypt_str);
     } else {
@@ -485,39 +547,119 @@ int32_t net_connect(lua_State *L) {
     }
   }
   if (is_null(connection)) {
-    lua_pushnumber(L, -1);
+    lua_pushinteger(L, -1);
   } else {
-    lua_pushnumber(L, connection->get_id());
+    lua_pushinteger(L, connection->get_id());
   }
   return 1;
 }
 
 int32_t net_disconnect(lua_State *L) {
   using namespace pf_net::connection;
-  SCRIPT_LUA_CHECKARGC_LEAST(L, 1);
+  SCRIPT_LUA_CHECKARGC_LEAST(L, 2);
   auto count = lua_gettop(L);
-  auto connid = static_cast<uint16_t>(lua_tonumber(L, 1));
-  std::string name{""}; 
-  Basic *connection{nullptr};
+  std::string manager_name = lua_tostringex(L, 1);
+  auto connid = static_cast<uint16_t>(lua_tonumber(L, 2));
   manager::Basic *manager{nullptr};
-  if (1 == count || lua_isnil(L, 2)) {
+  pf_net::connection::Basic *connection{nullptr};
+  if ("listener" == manager_name) {
+    if (count <= 2) {
+     SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_disconnect)"
+                  " can't get the listener name");
+    } else {
+      std::string listener_name = lua_tostringex(L, 3);
+      manager = ENGINE_POINTER->get_listener(listener_name);
+    }
+  } else if ("connector" == manager_name) {
+    manager = ENGINE_POINTER->get_connector_manager();
+  } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
     }
+  }
+  if (!is_null(manager)) connection = manager->get(connid);
+  bool result{false};
+  if (!is_null(connection) && !connection->is_disconnect()) {
+    connection->set_disconnect();
+    result = true;
+  }
+  lua_pushboolean(L, result);
+  return 1;
+}
+
+int32_t net_routing_request(lua_State *L) {
+  using namespace pf_net::connection;
+  SCRIPT_LUA_CHECKARGC(L, 6);
+  std::string manager_name = lua_tostringex(L, 1);
+  auto connid = static_cast<uint16_t>(lua_tonumber(L, 2));
+  manager::Basic *manager{nullptr};
+  pf_net::connection::Basic *connection{nullptr};
+  if ("listener" == manager_name) {
+    std::string listener_name = lua_tostringex(L, 3);
+    manager = ENGINE_POINTER->get_listener(listener_name);
+  } else if ("connector" == manager_name) {
+    manager = ENGINE_POINTER->get_connector_manager();
   } else {
-    std::string service_name = lua_tostring(L, 2);
-    if (service_name != "") {
-      manager = ENGINE_POINTER->get_listener(service_name);
-    } else {
-      manager = ENGINE_POINTER->get_connector_manager();
+    if (ENGINE_POINTER->get_net()) {
+      manager = ENGINE_POINTER->get_net();
     }
   }
   if (!is_null(manager)) connection = manager->get(connid);
   bool result{false};
   if (!is_null(connection)) {
-    result = true;
-    manager->remove(connection);
+    std::string destination = lua_tostringex(L, 4);
+    std::string aim_name = lua_tostringex(L, 5);
+    uint16_t aim_id = static_cast<uint16_t>(lua_tonumber(L, 6));
+    pf_net::packet::RoutingRequest routing_request;
+    routing_request.set_destination(destination);
+    routing_request.set_aim_name(aim_name);
+    routing_request.set_aim_id(aim_id);
+    result = connection->send(&routing_request);
   }
   lua_pushboolean(L, result);
+  return 1;
+}
+
+int32_t net_routing(lua_State *L) {
+  using namespace pf_net::connection;
+  SCRIPT_LUA_CHECKARGC(L, 6);
+  std::string manager_name = lua_tostring(L, 1);
+  manager::Basic *manager{nullptr};
+  pf_net::connection::Basic *connection{nullptr};
+  if ("listener" == manager_name) {
+    std::string listener_name = lua_tostringex(L, 3);
+    manager = ENGINE_POINTER->get_listener(listener_name);
+  } else if ("connector" == manager_name) {
+    manager = ENGINE_POINTER->get_connector_manager();
+  } else {
+    if (ENGINE_POINTER->get_net()) {
+      manager = ENGINE_POINTER->get_net();
+    }
+  }
+  if (!is_null(manager)) {
+    if (lua_isnumber(L, 2)) {
+      connection = manager->get(static_cast<uint16_t>(lua_tonumber(L, 2)));
+    } else {
+      connection = manager->get(lua_tostringex(L, 2));
+    }
+  }
+
+  auto pointer = static_cast<int64_t>(lua_tonumber(L, 5));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_routing) packet"
+                  " pointer is null");
+    return 0;
+  }
+  bool result{false};
+  if (!is_null(connection)) {
+    std::string aim_name = lua_tostringex(L, 4);
+    std::string destination = lua_tostringex(L, 6);
+    result = connection->routing(aim_name, packet, destination);
+  }
+  lua_pushboolean(L, result);
+  NET_PACKET_FACTORYMANAGER_POINTER->packet_remove(packet);
   return 1;
 }
