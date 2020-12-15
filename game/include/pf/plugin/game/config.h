@@ -11,6 +11,10 @@
 #ifndef PF_PLUGIN_GAME_CONFIG_H_
 #define PF_PLUGIN_GAME_CONFIG_H_
 
+#include "pf/plugin/game/3rd/cute_math.h"
+#include "pf/plugin/game/3rd/cute_math2d.h"
+#include "pf/basic/config.h"
+
 namespace pf_plugin {
 
 namespace game {
@@ -39,6 +43,5 @@ class Basic;
 } //namespace game
 
 } //namespace pf_plugin
-
 
 #endif //PF_PLUGIN_GAME_CONFIG_H_

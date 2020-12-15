@@ -51,10 +51,10 @@ endif()
 # ${pf_plugin_BINARY_DIR}.
 # Language "C" is required for find_package(Threads).
 if (CMAKE_VERSION VERSION_LESS 3.0)
-  project(pf CXX C)
+  project(pf_plugin CXX C)
 else()
   cmake_policy(SET CMP0048 NEW)
-  project(pf VERSION 1.9.0 LANGUAGES CXX C)
+  project(pf_plugin VERSION 1.9.0 LANGUAGES CXX C)
 endif()
 cmake_minimum_required(VERSION 2.6.4)
 
@@ -80,7 +80,7 @@ config_compiler_and_linker()  # Defined in internal_utils.cmake.
 include_directories(
   "${root_dir}/lua/include"
   "${root_dir}/odbc/include"
-  "${root_dir}/dependencies/lua/5.3.5/src"
+  "${root_dir}/dependencies/lua/5.4.2/src"
   "/usr/local/unixODBC/include")
 
 # Summary of tuple support for Microsoft Visual Studio:
@@ -94,7 +94,7 @@ include_directories(
 if (MSVC AND MSVC_VERSION EQUAL 1700)
   add_definitions(/D _VARIADIC_MAX=10)
 endif()
- 
+
 ########################################################################
 #
 # Defines the pf_plugin * libraries.  User tests should link
@@ -104,9 +104,9 @@ set(pf_plugin_build_shared ON)
 set(INSTALL_PF_PLUGIN ON)
 
 #The lua plugin with lua code.
-file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/*.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/lua.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.3.5/src/luac.c")
+file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/*.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/lua.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/luac.c")
 file(GLOB_RECURSE LIB_LUA_SOURCES "${root_dir}/lua/src/*.cc")
 list(APPEND LIB_LUA_SOURCES ${LIB_DEPS_LUA_SOURCES})
 
@@ -211,7 +211,7 @@ if (pf_plugin_build_tests)
     # Visual Studio 2010, 2012, and 2013 define symbols in std::tr1 that
     # conflict with our own definitions. Therefore using our own tuple does not
     # work on those compilers.
-    
+
   endif()
 
   ############################################################
@@ -224,7 +224,7 @@ if (pf_plugin_build_tests)
 
   # MSVC 7.1 does not support STL with exceptions disabled.
   if (NOT MSVC OR MSVC_VERSION GREATER 1310)
-   
+
   endif()
 
 endif()
