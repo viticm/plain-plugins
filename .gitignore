@@ -270,6 +270,5 @@ pf_*.cc
 pf_*.cc
 applications_*.cc
 liblua.a
-lua
 luac
 install_manifest.txt
