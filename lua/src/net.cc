@@ -445,7 +445,7 @@ int32_t net_send(lua_State *L) {
       manager = ENGINE_POINTER->get_listener(listener_name);
     }
   } else if ("connector" == manager_name) {
-    manager = ENGINE_POINTER->get_connector_manager();
+    manager = ENGINE_POINTER->get_connector();
   } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
@@ -503,7 +503,7 @@ int32_t net_conn_name(lua_State *L) {
       manager = ENGINE_POINTER->get_listener(listener_name);
     }
   } else if ("connector" == manager_name) {
-    manager = ENGINE_POINTER->get_connector_manager();
+    manager = ENGINE_POINTER->get_connector();
   } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
@@ -572,7 +572,7 @@ int32_t net_disconnect(lua_State *L) {
       manager = ENGINE_POINTER->get_listener(listener_name);
     }
   } else if ("connector" == manager_name) {
-    manager = ENGINE_POINTER->get_connector_manager();
+    manager = ENGINE_POINTER->get_connector();
   } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
@@ -599,7 +599,7 @@ int32_t net_routing_request(lua_State *L) {
     std::string listener_name = lua_tostringex(L, 3);
     manager = ENGINE_POINTER->get_listener(listener_name);
   } else if ("connector" == manager_name) {
-    manager = ENGINE_POINTER->get_connector_manager();
+    manager = ENGINE_POINTER->get_connector();
   } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();
@@ -631,7 +631,7 @@ int32_t net_routing(lua_State *L) {
     std::string listener_name = lua_tostringex(L, 3);
     manager = ENGINE_POINTER->get_listener(listener_name);
   } else if ("connector" == manager_name) {
-    manager = ENGINE_POINTER->get_connector_manager();
+    manager = ENGINE_POINTER->get_connector();
   } else {
     if (ENGINE_POINTER->get_net()) {
       manager = ENGINE_POINTER->get_net();

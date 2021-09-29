@@ -80,6 +80,7 @@ config_compiler_and_linker()  # Defined in internal_utils.cmake.
 include_directories(
   "${root_dir}/lua/include"
   "${root_dir}/odbc/include"
+  "${root_dir}/protocol/include"
   "${root_dir}/dependencies/lua/5.4.2/src"
   "/usr/local/unixODBC/include")
 
@@ -112,15 +113,19 @@ list(APPEND LIB_LUA_SOURCES ${LIB_DEPS_LUA_SOURCES})
 
 file(GLOB_RECURSE LIB_ODBC_SOURCES "${root_dir}/odbc/src/*.cc")
 
+file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
+
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
 # are used for other targets, to ensure that pf can be compiled by a user
 # aggressive about warnings.
 if (pf_plugin_build_shared)
   cxx_shared_library(pf_plugin_lua "${cxx_default}" "" ${LIB_LUA_SOURCES})
   cxx_shared_library(pf_plugin_odbc "${cxx_default}" "odbc" ${LIB_ODBC_SOURCES})
+  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "" ${LIB_PROTOCOL_SOURCES})
 else()
   cxx_library(pf_plugin_lua "${cxx_strict}" ${LIB_LUA_SOURCES})
   cxx_library(pf_plugin_odbc "${cxx_strict}" ${LIB_ODBC_SOURCES})
+  cxx_library(pf_plugin_protocol "${cxx_strict}" ${LIB_PROTOCOL_SOURCES})
 endif()
 
 # If the CMake version supports it, attach header directory information
