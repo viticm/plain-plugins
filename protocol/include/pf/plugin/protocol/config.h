@@ -15,6 +15,7 @@
 #define PF_PLUGIN_PROTOCOL_CONFIG_H_
 
 #include "pf/basic/config.h"
+#include "pf/basic/endian.h"
 #include "pf/net/packet/factorymanager.h"
 
 namespace pf_plugin {

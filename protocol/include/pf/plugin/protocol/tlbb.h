@@ -18,28 +18,56 @@
 #ifndef PF_PLUGIN_PROTOCOL_TLBB_H_
 #define PF_PLUGIN_PROTOCOL_TLBB_H_
 
+#include "pf/plugin/protocol/config.h"
+#include "pf/net/socket/api.h"
 #include "pf/net/protocol/interface.h"
 
 namespace pf_plugin {
 
 namespace protocol {
 
+//The net stream header struct need pack one char.
+#pragma pack(push,1)
 struct PF_PLUGIN_API TLBBHead {
   uint16_t mask = 0xAA55;
   uint16_t size = 0;
   uint8_t id = 0;
   uint16_t index = 0;
 };
+#pragma pack(pop)
 
 struct PF_PLUGIN_API TLBBFoot {
   uint16_t mask = 0x55AA;
 };
+
+inline void tlbb_head_ntoh(TLBBHead &h) {
+  h.mask = PF_NTOH(h.mask);
+  h.size = PF_NTOH(h.size);
+  h.index = PF_NTOH(h.index);
+}
+
+inline void tlbb_foot_ntoh(TLBBFoot &f) {
+  f.mask = PF_NTOH(f.mask);
+}
+
+inline void tlbb_head_hton(TLBBHead &h) {
+  h.mask = PF_HTON(h.mask);
+  h.size = PF_HTON(h.size);
+  h.index = PF_HTON(h.index);
+}
+
+inline void tlbb_foot_hton(TLBBFoot &f) {
+  f.mask = PF_HTON(f.mask);
+}
 
 class PF_PLUGIN_API TLBB : public pf_net::protocol::Interface {
 
  public:
    TLBB();
    virtual ~TLBB();
+
+ public:
+   void set_dynamic(bool flag) { dynamic_ = flag; }
 
  public:
    //处理网络包
@@ -52,10 +80,12 @@ class PF_PLUGIN_API TLBB : public pf_net::protocol::Interface {
    virtual bool send(pf_net::connection::Basic *connection,
                      pf_net::packet::Interface *packet);
    virtual size_t header_size() const { return sizeof(TLBBHead); };
-   virtual pf_net::packet::Interface *read_packet(pf_net::connection::Basic *); 
+   virtual pf_net::packet::Interface *read_packet(pf_net::connection::Basic *);
+
+ private:
+   bool dynamic_ = false;
 
 };
-
 
 } // namespace protocol
 

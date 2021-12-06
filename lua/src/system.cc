@@ -294,13 +294,31 @@ bool System::call(const std::string &name,
     on_scripterror(kErrorCodeStateIsNil);
     return false;
   }
-  lua_getglobal(lua_state_, name.c_str());
-  if (lua_isnil(lua_state_, -1)) {
-    SLOW_ERRORLOG(SCRIPT_MODULENAME,
-                  "[script.lua] (System::call) can't get global value,"
-                  " function: %s",
-                  name.c_str());
-    return false;
+  std::vector<std::string> array;
+  string::explode(name.c_str(), array, ".", true, true);
+  if (2 == array.size()) {
+    const char *table = array[0].c_str();
+    const char *field = array[1].c_str();
+    if (!get_ref(table, field)) register_ref(table, field);
+    if (!get_ref(table, field)) {
+      SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                    "[script.lua] (System::call) can't get ref,"
+                    " string: %s, table: %s, field: %s",
+                    name.c_str(),
+                    table,
+                    field);
+      return false;
+    }
+  } else {
+    lua_getglobal(lua_state_, name.c_str());
+    if (lua_isnil(lua_state_, -1)) {
+      SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                    "[script.lua] (System::call) can't get global value,"
+                    " function: %s, params: %d",
+                    name.c_str(),
+                    params.size());
+      return false;
+    }
   }
   uint32_t paramcount = static_cast<uint32_t>(params.size());
   uint32_t resultcount = static_cast<uint32_t>(results.size());

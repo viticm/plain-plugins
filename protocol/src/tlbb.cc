@@ -1,16 +1,61 @@
+#include "pf/basic/logger.h"
+#include "pf/basic/stringstream.h"
 #include "pf/net/stream/input.h"
 #include "pf/net/stream/output.h"
 #include "pf/net/packet/dynamic.h"
 #include "pf/net/packet/factorymanager.h"
 #include "pf/basic/io.tcc"
 #include "pf/sys/assert.h"
-#include "pf/basic/logger.h"
 #include "pf/plugin/protocol/tlbb.h"
 
 #define CANT_PEEK_TIMES_MAX 60
 
+
+void binary_print(char c) {
+  for (int8_t i = 0; i < 8; ++i) {
+    if (c << i & 0x80)
+      std::cout << '1';
+    else
+      std::cout << '0';
+  }
+  std::cout << std::endl;
+}
+
 using namespace pf_net;
 using namespace pf_plugin::protocol;
+
+std::string get_raw_string(char *str, uint16_t size) {
+  std::cout << "size: " << size << std::endl;
+  std::ostringstream out;
+  out << '\"';
+  out << std::hex;
+  for (uint16_t i = 0; i < size; ++i) {
+     // AND 0xFF will remove the leading "ff" in the output,
+     //  // So that we could get "\xab" instead of "\xffab"
+     out << "\\x" << (static_cast<short>(str[i]) & 0xff);
+     //    
+  }
+  out << '\"';
+  return out.str();    
+}
+
+bool is_little_endian() {
+  union {
+    int32_t a = 0x12345678;
+    char b;
+  } data;
+  if (0x12 == data.b)
+    return false;
+  else if (0x78 == data.b)
+    return true;
+  return false;
+}
+
+union {
+  char c[4];
+  unsigned long l;
+} endian_test = {{'l', '?', '?', 'b'}};
+#define ENDIANNESS ((char)endian_test.l)
 
 TLBBHead empty_header;
 TLBBFoot empty_footer;
@@ -45,11 +90,28 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
         clear_error = false;
         break;
       }
+      tlbb_head_ntoh(header);
+      // std::cout << "is_little_endian: " << is_little_endian() << std::endl;
+      char tmp[512]{0};
+      istream->peek(tmp, istream->size());
+      auto tmp_b = get_raw_string(tmp, istream->size());
+      std::cout << "l: " << ENDIANNESS << std::endl;
+      std::cout << "binary: " << tmp_b << " size: " << istream->size() << std::endl;
+      printf("header.id: %d\n", header.id);
+      /**
+      pf_basic::stringstream tmp2(tmp, istream->size());
+      uint16_t mask{0};
+      tmp2 >> mask;
+      binary_print(((char *)(&mask))[0]);
+      binary_print(((char *)(&mask))[1]);
+      std::cout << std::hex << "mask: " << mask << " mask1: " << ntohs(0xAA55) << std::endl;
+      **/
       if (empty_header.mask != header.mask) {
         Assert(false);
         return false;
       }
-      if (!NET_PACKET_FACTORYMANAGER_POINTER->
+      if (!dynamic_ &&
+          !NET_PACKET_FACTORYMANAGER_POINTER->
           is_valid_packet_id(header.id) &&
           !NET_PACKET_FACTORYMANAGER_POINTER->
           is_valid_dynamic_packet_id(header.id) &&
@@ -65,7 +127,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
       try {
         //check packet length
         if (!NET_PACKET_FACTORYMANAGER_POINTER->
-            is_valid_dynamic_packet_id(header.id)) {
+            is_valid_dynamic_packet_id(header.id) && !dynamic_) {
           if (header.size > 
             NET_PACKET_FACTORYMANAGER_POINTER->packet_max_size(header.id)) {
             char temp[FILENAME_MAX] = {0};
@@ -77,6 +139,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
             return false;
           }
         }
+        std::cout << "check size:" << istream->size() << "|" << (sizeof(TLBBHead) + header.size - 3 + sizeof(TLBBFoot)) << std::endl;
         //check packet size
         if (istream->size() < 
             sizeof(TLBBHead) + header.size - 3 + sizeof(TLBBFoot)) {
@@ -84,8 +147,11 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
           break;
         }
 
+        std::cout << "dynamic_: " << dynamic_ << std::endl;
+
         //create packet
-        packet = NET_PACKET_FACTORYMANAGER_POINTER->packet_create(header.id);
+        packet = 
+          NET_PACKET_FACTORYMANAGER_POINTER->packet_create(header.id, dynamic_);
         if (nullptr == packet) return false;
 
         //packet info
@@ -106,6 +172,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
         if (!istream->peek((char *)&footer, sizeof(footer))) {
           return false;
         }
+        tlbb_foot_ntoh(footer);
         istream->skip(sizeof(TLBBFoot));
         if (footer.mask != empty_footer.mask) {
           Assert(false);
@@ -300,11 +367,13 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   header.id = packetid;
   header.index = packetindex;
   header.size = packetsize + 3;
+  tlbb_head_hton(header);
   ostream.write(reinterpret_cast<const char *>(&header), 
                 sizeof(header));
   result = packet->write(ostream);
   Assert(result);
   TLBBFoot footer;
+  tlbb_foot_hton(footer);
   ostream.write(reinterpret_cast<const char *>(&footer), 
                 sizeof(footer));
   uint32_t after_writesize = ostream.size();
@@ -331,6 +400,7 @@ packet::Interface *TLBB::read_packet(connection::Basic *connection) {
     //数据不能填充消息头
     return nullptr;
   }
+  tlbb_head_ntoh(header);
   if (empty_header.mask != header.mask) {
     pf_basic::io_cerr("pack mask error: %d", header.id);
     return nullptr;
@@ -386,6 +456,7 @@ packet::Interface *TLBB::read_packet(connection::Basic *connection) {
     pf_basic::io_cerr("pack mask error: %d", header.id);
     return nullptr;
   }
+  tlbb_foot_ntoh(footer);
   if (footer.mask != empty_footer.mask) {
     pf_basic::io_cerr("pack mask error: %d", header.id);
     return nullptr;
