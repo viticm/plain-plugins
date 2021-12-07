@@ -55,6 +55,7 @@ static const struct luaL_Reg nettable[] = {
   {"read_bytes", net_read_bytes},
   {"read_id", net_read_id},
   {"packet_alloc", net_packet_alloc},
+  {"packet_reset", net_packet_reset},
   {"send", net_send},
   {"conn_name", net_conn_name},
   {"connect", net_connect},

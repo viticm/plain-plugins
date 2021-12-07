@@ -210,6 +210,22 @@ int32_t net_write_bytes(lua_State *L) {
   return 0;
 }
 
+int32_t net_write_raw(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 2);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_write_raw)"
+                  " pointer is null");
+    return 0;
+  }
+  auto value = lua_tostring(L, 2);
+  size_t size = lua_rawlen(L, 2);
+  packet->write_raw(value, size);
+  return 0;
+}
+
 int32_t net_read_int8(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
@@ -382,7 +398,7 @@ int32_t net_read_bytes(lua_State *L) {
   Dynamic *packet = packet_get(pointer);
   if (is_null(packet)) {
     SLOW_ERRORLOG(SCRIPT_MODULENAME,
-                  "[script.lua] (net_read_string)"
+                  "[script.lua] (net_read_bytes)"
                   " pointer is null");
     return 0;
   }
@@ -392,6 +408,29 @@ int32_t net_read_bytes(lua_State *L) {
   return 1;
 }
 
+int32_t net_read_raw(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 2);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_read_raw)"
+                  " pointer is null");
+    return 0;
+  }
+  uint32_t length = static_cast<uint32_t>(lua_tonumber(L, 2));
+  if (length > PF_PLUGIN_LUA_NET_PACKET_STRINGMAX) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_read_raw)"
+                  " read length(%d) is too long",
+                  length);
+    return 0;
+  }
+  char value[PF_PLUGIN_LUA_NET_PACKET_STRINGMAX]{0};
+  auto size = packet->read_raw(value, length);
+  lua_pushlstring(L, (const char *)value, size);
+  return 1;
+}
 
 int32_t net_read_id(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
@@ -411,14 +450,8 @@ int32_t net_read_id(lua_State *L) {
 int32_t net_packet_alloc(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   uint16_t packetid = static_cast<uint16_t>(lua_tointeger(L, 1));
-  if (!NET_PACKET_FACTORYMANAGER_POINTER->is_valid_dynamic_packet_id(packetid)) {
-    SLOW_ERRORLOG(SCRIPT_MODULENAME,
-                  "[script.lua] (net_packet_alloc)"
-                  " packet id is invalid: %d, not a dynamic id",
-                  packetid);
-    return 0;
-  }
-  Interface *packet = NET_PACKET_FACTORYMANAGER_POINTER->packet_create(packetid);
+  Interface *packet = 
+    NET_PACKET_FACTORYMANAGER_POINTER->packet_create(packetid, true);
   if (is_null(packet)) {
     SLOW_ERRORLOG(SCRIPT_MODULENAME,
                   "[script.lua] (net_packet_alloc)"
@@ -427,6 +460,20 @@ int32_t net_packet_alloc(lua_State *L) {
   }
   int64_t pointer = POINTER_TOINT64(packet);
   lua_pushnumber(L, static_cast<lua_Number>(pointer));
+  return 1;
+}
+
+int32_t net_packet_reset(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 1);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_packet_reset)"
+                  " pointer is null");
+    return 0;
+  }
+  packet->reset();
   return 1;
 }
 

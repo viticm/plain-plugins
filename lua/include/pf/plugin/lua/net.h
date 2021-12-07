@@ -27,6 +27,7 @@ int32_t net_write_string(lua_State *L);
 int32_t net_write_float(lua_State *L);
 int32_t net_write_double(lua_State *L);
 int32_t net_write_bytes(lua_State *L);
+int32_t net_write_raw(lua_State *L);
 
 int32_t net_read_int8(lua_State *L);
 int32_t net_read_uint8(lua_State *L);
@@ -40,7 +41,9 @@ int32_t net_read_string(lua_State *L);
 int32_t net_read_float(lua_State *L);
 int32_t net_read_double(lua_State *L);
 int32_t net_read_bytes(lua_State *L);
+int32_t net_read_raw(lua_State *L);
 
+int32_t net_packet_reset(lua_State *L);
 int32_t net_read_id(lua_State *L);
 int32_t net_packet_alloc(lua_State *L);
 
