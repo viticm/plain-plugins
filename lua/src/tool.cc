@@ -9,7 +9,7 @@
 int32_t md5(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   std::string str = lua_tostringex(L, 1);
-  pf_basic::md5 md5_str(str);
+  pf_basic::MD5 md5_str(str);
   lua_pushstring(L, md5_str.md5().c_str());
   return 1;
 }
@@ -62,8 +62,7 @@ luasplit2stack(void *ctx,const char *src, size_t len) {
   }
 }
 
-static int 
-split2table(lua_State *L) {
+int32_t split2table(lua_State *L) {
   size_t len;
   const char *src = luaL_checklstring(L, 1, &len);
   const char *sp = luaL_optstring(L, 2, " ");
@@ -75,8 +74,7 @@ split2table(lua_State *L) {
   return 1;
 }
 
-static int 
-split2stack(lua_State *L) {
+int32_t split2stack(lua_State *L) {
   size_t len;
   const char *src = luaL_checklstring(L, 1, &len);
   const char *sp = luaL_optstring(L, 2, " ");
@@ -145,17 +143,17 @@ static int32_t f2str(lua_State *L, luaL_Buffer *buf, int32_t index) {
 static int32_t
 v2str(lua_State *L, luaL_Buffer *buf, int32_t index, int32_t level) {
   int32_t type = lua_type(L, index);
-  const char *typename = lua_typename(L, type);
+  const char *tp_name = lua_typename(L, type);
   switch (type) {
     case LUA_TSTRING:
       {
-        lua_pushfstring(buf->L, "%s(%s)", lua_tostring(L, index), typename);
+        lua_pushfstring(buf->L, "%s(%s)", lua_tostring(L, index), tp_name);
         luaL_addvalue(buf);
       }
       break;
     case LUA_TNUMBER:
       {
-        lua_pushfstring(buf->L, "%f(%s)", lua_tonumber(L, index), typename);
+        lua_pushfstring(buf->L, "%f(%s)", lua_tonumber(L, index), tp_name);
         luaL_addvalue(buf);
       }
       break;
@@ -173,14 +171,14 @@ v2str(lua_State *L, luaL_Buffer *buf, int32_t index, int32_t level) {
     case LUA_TUSERDATA:
     case LUA_TLIGHTUSERDATA:
       {
-        lua_pushfstring(buf->L, "%p(%s)", lua_topointer(L, index), typename);
+        lua_pushfstring(buf->L, "%p(%s)", lua_topointer(L, index), tp_name);
       }
       break;
     case LUA_TBOOLEAN:
       {
         lua_pushfstring(buf->L, "%s(%s)",
                         lua_toboolean(L, index) ? "true" : "false",
-                        typename);
+                        tp_name);
       }
       break;
     case LUA_TNIL:
@@ -258,7 +256,8 @@ int32_t traceback(lua_State *L) {
 int32_t base64_encode(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   std::string str = lua_tostringex(L, 1);
-  auto r = pf_basic::base64_encode(str.c_str(), str.size()) ; 
+  auto r = pf_basic::base64_encode(
+      (const unsigned char *)str.c_str(), str.size()) ; 
   lua_pushstring(L, r.c_str());
   return 1;
 }
