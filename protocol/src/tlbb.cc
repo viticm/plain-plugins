@@ -371,7 +371,7 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   ostream.write(reinterpret_cast<const char *>(&header), 
                 sizeof(header));
   result = packet->write(ostream);
-  Assert(result);
+  // Assert(result);
   TLBBFoot footer;
   tlbb_foot_hton(footer);
   ostream.write(reinterpret_cast<const char *>(&footer), 

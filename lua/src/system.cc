@@ -6,6 +6,7 @@
 #include "pf/plugin/lua/logger.h"
 #include "pf/plugin/lua/cache.h"
 #include "pf/plugin/lua/net.h"
+#include "pf/plugin/lua/tool.h"
 #include "pf/plugin/lua/system.h"
 
 static const struct luaL_Reg filetable[] = {
@@ -65,6 +66,16 @@ static const struct luaL_Reg nettable[] = {
   {NULL, NULL}
 };
 
+static const struct luaL_Reg tooltable[] = {
+  {"md5", md5},
+  {"split2stack", split2stack},
+  {"split2table", split2table},
+  {"traceback", traceback},
+  {"base64_encode", base64_encode},
+  {"base64_decode", base64_decode},
+  {NULL, NULL}
+};
+
 using namespace pf_plugin::lua;
 
 bool System::init() {
@@ -99,6 +110,7 @@ bool System::init() {
   luaL_register(lua_state_, "logger", logtable);
   dcache_register(lua_state_);
   luaL_register(lua_state_, "net", nettable);
+  luaL_register(lua_state_, "tool", tooltable);
 
   return true;
 }
