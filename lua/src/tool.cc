@@ -9,8 +9,8 @@
 int32_t md5(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   std::string str = lua_tostringex(L, 1);
-  pf_basic::MD5 md5_str(str);
-  lua_pushstring(L, md5_str.md5().c_str());
+  auto r = pf_basic::md5(str);
+  lua_pushstring(L, r.c_str());
   return 1;
 }
 
