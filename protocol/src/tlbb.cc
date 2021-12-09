@@ -1,10 +1,11 @@
 #include "pf/basic/logger.h"
 #include "pf/basic/stringstream.h"
+#include "pf/basic/io.tcc"
+#include "pf/basic/type/variable.h"
 #include "pf/net/stream/input.h"
 #include "pf/net/stream/output.h"
 #include "pf/net/packet/dynamic.h"
 #include "pf/net/packet/factorymanager.h"
-#include "pf/basic/io.tcc"
 #include "pf/sys/assert.h"
 #include "pf/plugin/protocol/tlbb.h"
 
@@ -97,7 +98,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
       auto tmp_b = get_raw_string(tmp, istream->size());
       std::cout << "l: " << ENDIANNESS << std::endl;
       std::cout << "binary: " << tmp_b << " size: " << istream->size() << std::endl;
-      printf("header.id: %d\n", header.id);
+      printf("header.id: %d, %d\n", header.id, header.index);
       /**
       pf_basic::stringstream tmp2(tmp, istream->size());
       uint16_t mask{0};
@@ -158,6 +159,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
         packet->set_index(static_cast<int8_t>(header.index));
         packet->set_id(header.id);
         packet->set_size(header.size);
+        packet->set_exstr(std::to_string(header.index));
 
         //read packet
         result = istream->skip(sizeof(TLBBHead));
@@ -358,15 +360,19 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   if (!ostream.use(NET_PACKET_HEADERSIZE + packet->size())) {
     return false;
   }
-  packet->set_index(connection->packet_index());
+  // packet->set_index(connection->packet_index());
   uint32_t before_writesize = ostream.size();
   uint16_t packetid = packet->get_id();
   uint32_t packetsize = packet->size();
-  uint32_t packetindex = packet->get_index();
+  //uint32_t packetindex = packet->get_index();
+  pf_basic::type::variable_t packetindex(packet->get_exstr());
   TLBBHead header;
-  header.id = packetid;
-  header.index = packetindex;
+  header.id = static_cast<uint8_t>(packetid);
+  header.index = packetindex.get<uint16_t>();
   header.size = packetsize + 3;
+  binary_print(header.id);
+  binary_print(header.index);
+  std::cout << "send packet===============: " << packetid << "|" << header.index << std::endl;
   tlbb_head_hton(header);
   ostream.write(reinterpret_cast<const char *>(&header), 
                 sizeof(header));
@@ -444,9 +450,10 @@ packet::Interface *TLBB::read_packet(connection::Basic *connection) {
   if (nullptr == packet) return nullptr;
 
   //packet info
-  packet->set_index(static_cast<int8_t>(header.index));
+  // packet->set_index(static_cast<int8_t>(header.index));
   packet->set_id(header.id);
   packet->set_size(header.size);
+  packet->set_exstr(std::to_string(header.index));
   
   //read packet
   bool result{false};

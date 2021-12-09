@@ -46,6 +46,8 @@ PF_PLUGIN_API int32_t net_read_raw(lua_State *L);
 PF_PLUGIN_API int32_t net_packet_reset(lua_State *L);
 PF_PLUGIN_API int32_t net_read_id(lua_State *L);
 PF_PLUGIN_API int32_t net_packet_alloc(lua_State *L);
+PF_PLUGIN_API int32_t net_set_exstr(lua_State *L);
+PF_PLUGIN_API int32_t net_get_exstr(lua_State *L);
 
 //Use this interface will check your listener and connector name must be different.
 //And the packet pointer will remove after this function.

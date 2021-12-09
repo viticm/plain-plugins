@@ -463,6 +463,36 @@ int32_t net_packet_alloc(lua_State *L) {
   return 1;
 }
 
+int32_t net_set_exstr(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 2);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_set_exstr)"
+                  " pointer is null");
+    return 0;
+  }
+  std::string str = lua_tostringex(L, 2);
+  packet->set_exstr(str);
+  return 0;
+}
+
+int32_t net_get_exstr(lua_State *L) {
+  SCRIPT_LUA_CHECKARGC(L, 1);
+  int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
+  Dynamic *packet = packet_get(pointer);
+  if (is_null(packet)) {
+    SLOW_ERRORLOG(SCRIPT_MODULENAME,
+                  "[script.lua] (net_get_exstr)"
+                  " pointer is null");
+    return 0;
+  }
+  auto str = packet->get_exstr();
+  lua_pushstring(L, str.c_str());
+  return 1;
+}
+
 int32_t net_packet_reset(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   int64_t pointer = static_cast<int64_t>(lua_tonumber(L, 1));
