@@ -40,6 +40,7 @@ std::string get_raw_string(char *str, uint16_t size) {
   return out.str();    
 }
 
+/**
 bool is_little_endian() {
   union {
     int32_t a = 0x12345678;
@@ -57,6 +58,7 @@ union {
   unsigned long l;
 } endian_test = {{'l', '?', '?', 'b'}};
 #define ENDIANNESS ((char)endian_test.l)
+**/
 
 TLBBHead empty_header;
 TLBBFoot empty_footer;
@@ -96,7 +98,7 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
       char tmp[512]{0};
       istream->peek(tmp, istream->size());
       auto tmp_b = get_raw_string(tmp, istream->size());
-      std::cout << "l: " << ENDIANNESS << std::endl;
+      // std::cout << "l: " << ENDIANNESS << std::endl;
       std::cout << "binary: " << tmp_b << " size: " << istream->size() << std::endl;
       printf("header.id: %d, %d\n", header.id, header.index);
       /**
@@ -140,15 +142,14 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
             return false;
           }
         }
-        std::cout << "check size:" << istream->size() << "|" << (sizeof(TLBBHead) + header.size - 3 + sizeof(TLBBFoot)) << std::endl;
+        // std::cout << "check size:" << istream->size() << "|" << 
+        // (sizeof(TLBBHead) + header.size - 3 + sizeof(TLBBFoot)) << std::endl;
         //check packet size
         if (istream->size() < 
             sizeof(TLBBHead) + header.size - 3 + sizeof(TLBBFoot)) {
           //message not receive full
           break;
         }
-
-        std::cout << "dynamic_: " << dynamic_ << std::endl;
 
         //create packet
         packet = 
@@ -370,9 +371,7 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   header.id = static_cast<uint8_t>(packetid);
   header.index = packetindex.get<uint16_t>();
   header.size = packetsize + 3;
-  binary_print(header.id);
-  binary_print(header.index);
-  std::cout << "send packet===============: " << packetid << "|" << header.index << std::endl;
+  std::cout << "send packet: " << packetid << "|" << header.index << std::endl;
   tlbb_head_hton(header);
   ostream.write(reinterpret_cast<const char *>(&header), 
                 sizeof(header));

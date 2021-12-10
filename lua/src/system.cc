@@ -249,6 +249,7 @@ void System::getglobal(const std::string &name,
 
 bool System::call(const std::string &str) {
   using namespace pf_basic;
+  std::unique_lock<std::mutex> lock(mutex_);
   if (!lua_state_) {
     on_scripterror(kErrorCodeStateIsNil);
     return false;
@@ -307,6 +308,7 @@ bool System::call(const std::string &name,
                   const pf_basic::type::variable_array_t &params,
                   pf_basic::type::variable_array_t &results) {
   using namespace pf_basic;
+  std::unique_lock<std::mutex> lock(mutex_);
   if (!lua_state_) {
     on_scripterror(kErrorCodeStateIsNil);
     return false;
@@ -460,6 +462,7 @@ void System::unregister_refs() {
 }
 
 void System::gccheck(int32_t freetime) {
+  std::unique_lock<std::mutex> lock(mutex_);
   if (!lua_state_) return;
   int32_t delta = 0;
   int32_t turn = 0;
