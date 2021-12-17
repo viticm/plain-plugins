@@ -68,7 +68,7 @@ bool System::check_db_connect(bool directly) {
   Assert(odbc_interface_);
   bool result = true; //Error check with not connected.
   if (!odbc_interface_->is_connected()) {
-    uint32_t tickcount = TIME_MANAGER_POINTER->get_tickcount();
+    auto tickcount = TIME_MANAGER_POINTER->get_tickcount();
     if ((timer_.counting(tickcount) || directly) && odbc_interface_->connect()) {
       SLOW_DEBUGLOG("odbc",
         "[db.odbc] the connection reconnect successful!"

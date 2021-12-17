@@ -470,7 +470,7 @@ void System::gccheck(int32_t freetime) {
   uint32_t memorycount2;
   int32_t havetime = freetime;
   int32_t reclaim = 0;
-  uint32_t start_tickcount = TIME_MANAGER_POINTER->get_tickcount();
+  auto start_tickcount = TIME_MANAGER_POINTER->get_tickcount();
   for (turn = 0; turn < 3; ++turn) {
     memorycount1 = lua_gc(lua_state_, LUA_GCCOUNT, 0);
     reclaim = havetime * 1;
@@ -479,7 +479,7 @@ void System::gccheck(int32_t freetime) {
     }
     memorycount2 = lua_gc(lua_state_, LUA_GCCOUNT, 0);
     delta += memorycount1 - memorycount2;
-    uint32_t current_tickcount = TIME_MANAGER_POINTER->get_tickcount();
+    auto current_tickcount = TIME_MANAGER_POINTER->get_tickcount();
     havetime -= (current_tickcount - start_tickcount);
     if (havetime < 40 || delta <= reclaim) break;
   }

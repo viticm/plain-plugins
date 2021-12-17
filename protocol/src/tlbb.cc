@@ -26,7 +26,7 @@ using namespace pf_net;
 using namespace pf_plugin::protocol;
 
 std::string get_raw_string(char *str, uint16_t size) {
-  std::cout << "size: " << size << std::endl;
+  // std::cout << "size: " << size << std::endl;
   std::ostringstream out;
   out << '\"';
   out << std::hex;
