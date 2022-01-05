@@ -81,7 +81,7 @@ include_directories(
   "${root_dir}/lua/include"
   "${root_dir}/odbc/include"
   "${root_dir}/protocol/include"
-  "${root_dir}/dependencies/lua/5.4.2/src"
+  "${root_dir}/dependencies/lua/${lua_version}/src"
   "/usr/local/unixODBC/include")
 
 # Summary of tuple support for Microsoft Visual Studio:
