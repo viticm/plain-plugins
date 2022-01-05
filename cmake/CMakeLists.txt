@@ -104,10 +104,27 @@ endif()
 set(pf_plugin_build_shared ON)
 set(INSTALL_PF_PLUGIN ON)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
+#For utf8 no boom.
+if (MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd4819")
+endif()
+
+# This is the directory into which the executables are built.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${root_dir}/plain/bin)
+
+# This is the directory into which the librarys are built.
+SET(LIBRARY_OUTPUT_PATH ${root_dir}/plain/lib)
+
+set(lua_version 5.4.3)
+
 #The lua plugin with lua code.
-file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/*.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/lua.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/5.4.2/src/luac.c")
+file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/*.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/lua.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/luac.c")
 file(GLOB_RECURSE LIB_LUA_SOURCES "${root_dir}/lua/src/*.cc")
 list(APPEND LIB_LUA_SOURCES ${LIB_DEPS_LUA_SOURCES})
 
@@ -133,15 +150,6 @@ endif()
 # in via add_subdirectory() rather than being a standalone build).
 if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.12")
   #target_include_directories(pf_plugin_core      SYSTEM INTERFACE "${root_dir}/include")
-endif()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
-
-#For utf8 no boom.
-if (MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd4819")
 endif()
 
 ########################################################################

@@ -4,6 +4,6 @@ includedir=/usr/local/include
 Name: pf_plugin
 Description: PlainFramework (without main() function)
 Version: 1.9.0
-URL: https://github.com/viticm/plain
+URL: https://github.com/viticm/plain-plugins
 Libs: -L${libdir} -lpf_core -pthread
 Cflags: -I${includedir}  -pthread
