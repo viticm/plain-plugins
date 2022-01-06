@@ -147,16 +147,20 @@ file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
 if (pf_plugin_build_shared)
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
+  string(REPLACE "-Werror" "" cxx_default "${cxx_default}")
   cxx_shared_library(pf_plugin_lua "${cxx_default}" "" ${LIB_LUA_SOURCES})
   set(cxx_default "${cxx_default} -pedantic")
+  set(cxx_default "${cxx_default} -Werror")
 
   cxx_shared_library(pf_plugin_odbc "${cxx_default}" "odbc" ${LIB_ODBC_SOURCES})
   cxx_shared_library(pf_plugin_protocol "${cxx_default}" "" ${LIB_PROTOCOL_SOURCES})
 else()
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
+  string(REPLACE "-Werror" "" cxx_default "${cxx_default}")
   cxx_library(pf_plugin_lua "${cxx_strict}" ${LIB_LUA_SOURCES})
   set(cxx_default "${cxx_default} -pedantic")
+  set(cxx_default "${cxx_default} -Werror")
 
   cxx_library(pf_plugin_odbc "${cxx_strict}" ${LIB_ODBC_SOURCES})
   cxx_library(pf_plugin_protocol "${cxx_strict}" ${LIB_PROTOCOL_SOURCES})
