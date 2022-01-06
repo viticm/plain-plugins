@@ -238,6 +238,9 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
 bool TLBB::compress(connection::Basic *connection, 
                     char *uncompress_buffer, 
                     char *compress_buffer) {
+  UNUSED(connection);
+  UNUSED(uncompress_buffer);
+  UNUSED(compress_buffer);
   return false;
   /*
   stream::Input &istream = connection->istream();
