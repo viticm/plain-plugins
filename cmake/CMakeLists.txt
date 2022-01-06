@@ -114,11 +114,17 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-expansion-to-defined")
 
+if (not has_output_path)
+
 # This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${root_dir}/plain/bin)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${root_dir}/plain/bin)
 
 # This is the directory into which the librarys are built.
-SET(LIBRARY_OUTPUT_PATH ${root_dir}/plain/lib)
+  set(LIBRARY_OUTPUT_PATH ${root_dir}/plain/lib)
+
+  set(has_output_path 1)
+
+endif()
 
 set(lua_version 5.4.3)
 
