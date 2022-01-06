@@ -78,6 +78,7 @@ config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
 # Where Plain Framework's .h files can be found.
 include_directories(
+  "${plainframework_dir}/include"
   "${root_dir}/lua/include"
   "${root_dir}/odbc/include"
   "${root_dir}/protocol/include"
@@ -127,8 +128,6 @@ if (NOT has_output_path)
 endif()
 
 set(lua_version 5.4.3)
-
-include_directories(${plainframework}/include ${CMAKE_CURRENT_LIST_DIR})
 
 #The lua plugin with lua code.
 file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/*.c")
