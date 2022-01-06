@@ -49,13 +49,14 @@ endif()
 # as ${root_dir} and to the root binary directory as
 # ${pf_plugin_BINARY_DIR}.
 # Language "C" is required for find_package(Threads).
+set(PF_PLUGIN_VERSION 1.0.0)
 if (CMAKE_VERSION VERSION_LESS 3.0)
   project(pf_plugin CXX C)
 else()
   cmake_policy(SET CMP0048 NEW)
-  project(pf_plugin VERSION 1.9.0 LANGUAGES CXX C)
+  project(pf_plugin VERSION ${PF_PLUGIN_VERSION} LANGUAGES CXX C)
 endif()
-cmake_minimum_required(VERSION 2.6.4)
+cmake_minimum_required(VERSION 2.8.12)
 
 if (POLICY CMP0063) # Visibility
   cmake_policy(SET CMP0063 NEW)
@@ -113,7 +114,6 @@ if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd4819")
 endif()
 
-
 if (NOT has_output_path)
 
   # This is the directory into which the executables are built.
@@ -127,6 +127,8 @@ if (NOT has_output_path)
 endif()
 
 set(lua_version 5.4.3)
+
+include_directories(${plainframework}/include ${CMAKE_CURRENT_LIST_DIR})
 
 #The lua plugin with lua code.
 file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/*.c")
