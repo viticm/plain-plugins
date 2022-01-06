@@ -114,7 +114,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-expansion-to-defined")
 
-if (not has_output_path)
+if (NOT has_output_path)
 
   # This is the directory into which the executables are built.
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${root_dir}/bin)
