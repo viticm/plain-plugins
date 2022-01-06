@@ -24,7 +24,6 @@ option(pf_plugin_build_samples "Build pf's sample programs." OFF)
 
 option(pf_plugin_disable_pthreads "Disable uses of pthreads in pf." OFF)
 
-
 option(
   pf_plugin_hide_internal_symbols
   "Build pf with internal symbols hidden in shared libraries."
@@ -112,6 +111,8 @@ endif()
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd4819")
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-expansion-to-defined")
 
 # This is the directory into which the executables are built.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${root_dir}/plain/bin)
