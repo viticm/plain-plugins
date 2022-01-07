@@ -43,7 +43,6 @@
   } \
 }
 
-
 namespace pf_plugin {
 
 namespace lua {
