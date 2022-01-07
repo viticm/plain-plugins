@@ -33,7 +33,7 @@ macro(fix_default_compiler_settings_)
       # We prefer more strict warning checking for building Plain Framework.
       # Replaces /W3 with /W4 in defaults.
       # string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
-      string(REPLACE "/W4" "/W3" ${flag_var} "${${flag_var}}")
+      string(REPLACE "/W3" "/W4" ${flag_var} "${${flag_var}}")
     endforeach()
   endif()
 endmacro()
@@ -58,7 +58,7 @@ macro(config_compiler_and_linker)
   if (MSVC)
     # Newlines inside flags variables break CMake's NMake generator.
     # TODO(vladl@google.com): Add -RTCs and -RTCu to debug builds.
-    set(cxx_base_flags "-GS -W3 -WX -wd4251 -wd4275 -nologo -J -Zi")
+    set(cxx_base_flags "-GS -W4 -WX -wd4251 -wd4275 -nologo -J -Zi")
     if (MSVC_VERSION LESS 1400)  # 1400 is Visual Studio 2005
       # Suppress spurious warnings MSVC 7.1 sometimes issues.
       # Forcing value to bool.
