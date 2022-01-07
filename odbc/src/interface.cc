@@ -61,11 +61,11 @@ bool Interface::connect(const char *connection_name,
   SQLAllocHandle(SQL_HANDLE_DBC, sql_henv_, &sql_hdbc_);
   //Some error in SQLConnect will lost memory.
   result_ = SQLConnect(sql_hdbc_,
-                       reinterpret_cast<SQLCHAR*>(connection_name_),
+                       reinterpret_cast<sql_char_t*>(connection_name_),
                        SQL_NTS,
-                       reinterpret_cast<SQLCHAR*>(user_),
+                       reinterpret_cast<sql_char_t*>(user_),
                        SQL_NTS,
-                       reinterpret_cast<SQLCHAR*>(password_),
+                       reinterpret_cast<sql_char_t*>(password_),
                        SQL_NTS);
   if (SQL_SUCCESS != result_ && SQL_SUCCESS_WITH_INFO != result_) {
     char log_buffer[512];
@@ -102,11 +102,11 @@ bool Interface::connect() {
 #endif
   SQLAllocHandle(SQL_HANDLE_DBC, sql_henv_, &sql_hdbc_);
   result_ = SQLConnect(sql_hdbc_,
-                       reinterpret_cast<SQLCHAR*>(connection_name_),
+                       reinterpret_cast<sql_char_t*>(connection_name_),
                        SQL_NTS,
-                       reinterpret_cast<SQLCHAR*>(user_),
+                       reinterpret_cast<sql_char_t*>(user_),
                        SQL_NTS,
-                       reinterpret_cast<SQLCHAR*>(password_),
+                       reinterpret_cast<sql_char_t*>(password_),
                        SQL_NTS);
   if (result_ != SQL_SUCCESS && result_ != SQL_SUCCESS_WITH_INFO) {
     char log_buffer[512];
@@ -193,7 +193,7 @@ bool Interface::collect_resultinfo() {
   column_nullable_ = reinterpret_cast<SQLSMALLINT *>(
       column_info_allocator_.calloc(sizeof(SQLSMALLINT), column_count_ + 1));
   for (SQLUSMALLINT column = 0; column < column_count_; ++column) {
-    SQLCHAR name[DB_ODBC_COLUMN_NAME_LENGTH_MAX]{0};
+    sql_char_t name[DB_ODBC_COLUMN_NAME_LENGTH_MAX]{0};
     SQLSMALLINT namelength = 0;
     if (failed(SQLDescribeCol(sql_hstmt_, 
                               column + 1, 
@@ -220,7 +220,7 @@ bool Interface::execute(const std::string &sql_str) {
   try {
     //int column_index;
     result_ = SQLExecDirect(sql_hstmt_, 
-                            cast(SQLCHAR *, sql_str.c_str()), 
+                            cast(sql_char_t *, sql_str.c_str()), 
                             SQL_NTS);
     if ((result_ != SQL_SUCCESS) && 
         (result_ != SQL_SUCCESS_WITH_INFO) &&
@@ -608,7 +608,7 @@ int32_t Interface::get_field(int32_t column_index,
 void Interface::diag_state() {
   int32_t j = 1;
   SQLINTEGER native_error;
-  SQLCHAR sql_state[6] = {0};
+  sql_char_t sql_state[6] = {0};
   SQLSMALLINT msg_length;
   memset(error_message_, 0, ERROR_MESSAGE_LENGTH_MAX);
   while ((result_ = SQLGetDiagRec(SQL_HANDLE_DBC, 
@@ -645,12 +645,21 @@ void Interface::diag_state() {
     }
   }
   char error_buffer[2048]{0};
+#ifndef UNICODE
   snprintf(error_buffer,
-           sizeof(error_buffer) - 1,
-           "error code: %d, error msg: %s", 
-           static_cast<int32_t>(error_code_), 
-           error_message_);
+    sizeof(error_buffer) - 1,
+    "error code: %d, error msg: %s",
+    static_cast<int32_t>(error_code_),
+    error_message_);
   save_error_log(error_buffer);
+#else
+  snprintf(error_buffer,
+    sizeof(error_buffer) - 1,
+    "error code: %d, error msg: %ws",
+    static_cast<int32_t>(error_code_),
+    error_message_);
+  save_error_log(error_buffer);
+#endif // !UNICODE
 }
 
 void Interface::save_error_log(const char *log) {

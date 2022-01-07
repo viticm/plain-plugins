@@ -21,6 +21,13 @@
 #define VOID void //for unixODBC
 #endif
 
+#define sql_char_t SQLCHAR
+
+#ifdef UNICODE
+#undef sql_char_t
+#define sql_char_t SQLWCHAR
+#endif // UNICODE
+
 #include "sql.h"
 #include "sqlext.h"
 
@@ -173,7 +180,7 @@ class PF_API Interface {
    pf_util::compressor::Mini compressor_;
 
    SQLINTEGER error_code_;
-   SQLCHAR error_message_[ERROR_MESSAGE_LENGTH_MAX];
+   sql_char_t error_message_[ERROR_MESSAGE_LENGTH_MAX];
 
 };
 

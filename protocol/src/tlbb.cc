@@ -96,8 +96,8 @@ bool TLBB::command(connection::Basic *connection, uint16_t count) {
       tlbb_head_ntoh(header);
       // std::cout << "is_little_endian: " << is_little_endian() << std::endl;
       char tmp[512]{0};
-      istream->peek(tmp, istream->size());
-      auto tmp_b = get_raw_string(tmp, istream->size());
+      istream->peek(tmp, (uint32_t)istream->size());
+      auto tmp_b = get_raw_string(tmp, (uint16_t)istream->size());
       // std::cout << "l: " << ENDIANNESS << std::endl;
       std::cout << "binary: " << tmp_b << " size: " << istream->size() << std::endl;
       printf("header.id: %d, %d\n", header.id, header.index);
@@ -365,7 +365,7 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
     return false;
   }
   // packet->set_index(connection->packet_index());
-  uint32_t before_writesize = ostream.size();
+  uint32_t before_writesize = (uint32_t)ostream.size();
   uint16_t packetid = packet->get_id();
   uint32_t packetsize = packet->size();
   //uint32_t packetindex = packet->get_index();
@@ -373,7 +373,7 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   TLBBHead header;
   header.id = static_cast<uint8_t>(packetid);
   header.index = packetindex.get<uint16_t>();
-  header.size = packetsize + 3;
+  header.size = (uint16_t)packetsize + 3;
   std::cout << "send packet: " << packetid << "|" << header.index << std::endl;
   tlbb_head_hton(header);
   ostream.write(reinterpret_cast<const char *>(&header), 
@@ -384,7 +384,7 @@ bool TLBB::send(connection::Basic *connection, packet::Interface *packet) {
   tlbb_foot_hton(footer);
   ostream.write(reinterpret_cast<const char *>(&footer), 
                 sizeof(footer));
-  uint32_t after_writesize = ostream.size();
+  uint32_t after_writesize = (uint32_t)ostream.size();
   if (packet->size() != 
       after_writesize - before_writesize - sizeof(header) - sizeof(footer)) {
     FAST_ERRORLOG(NET_MODULENAME,

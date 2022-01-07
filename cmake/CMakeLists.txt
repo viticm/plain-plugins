@@ -142,7 +142,7 @@ file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
 
 # For lua disabled.
 if (MSVC)
-  set(lua_flags "-wd4244 -wd4324 -wd4310 -wd4701")
+  set(lua_flags "-wd4244 -wd4324 -wd4310 -wd4701 -wd4706")
 endif()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
@@ -152,7 +152,9 @@ if (pf_plugin_build_shared)
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
   cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "" ${LIB_LUA_SOURCES})
-  set(cxx_default "${cxx_default} -pedantic")
+  if (NOT MSVC)
+    set(cxx_default "${cxx_default} -pedantic")
+  endif()
 
   cxx_shared_library(pf_plugin_odbc "${cxx_default}" "odbc" ${LIB_ODBC_SOURCES})
   cxx_shared_library(pf_plugin_protocol "${cxx_default}" "" ${LIB_PROTOCOL_SOURCES})
@@ -160,7 +162,9 @@ else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")
   cxx_library(pf_plugin_lua "${cxx_strict} ${lua_flags}" ${LIB_LUA_SOURCES})
-  set(cxx_default "${cxx_strict} -pedantic")
+  if (NOT MSVC)
+    set(cxx_default "${cxx_strict} -pedantic")
+  endif()
 
   cxx_library(pf_plugin_odbc "${cxx_strict}" ${LIB_ODBC_SOURCES})
   cxx_library(pf_plugin_protocol "${cxx_strict}" ${LIB_PROTOCOL_SOURCES})
