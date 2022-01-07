@@ -151,14 +151,14 @@ endif()
 if (pf_plugin_build_shared)
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
-  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "pf_core" ${LIB_LUA_SOURCES})
+  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "" ${LIB_LUA_SOURCES})
   if (NOT MSVC)
     set(cxx_default "${cxx_default} -pedantic")
 	  set(odbc_libs "odbc")
   endif()
 
-  cxx_shared_library(pf_plugin_odbc "${cxx_default}" "pf_core;${with_odbc}" ${LIB_ODBC_SOURCES})
-  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "pf_core" ${LIB_PROTOCOL_SOURCES})
+  cxx_shared_library(pf_plugin_odbc "${cxx_default}" "${odbc_libs}" ${LIB_ODBC_SOURCES})
+  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "" ${LIB_PROTOCOL_SOURCES})
 else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")
