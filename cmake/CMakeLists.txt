@@ -144,7 +144,7 @@ file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
 if (MSVC)
   set(lua_flags "-wd4244 -wd4324 -wd4310 -wd4701 -wd4706")
   set(common_libs "pf_core")
-	set(odbc_libs "${common_libs};odbc")
+  set(odbc_libs "${common_libs};odbc")
 endif()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
