@@ -140,9 +140,11 @@ file(GLOB_RECURSE LIB_ODBC_SOURCES "${root_dir}/odbc/src/*.cc")
 
 file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
 
-# For lua disabled.
+# For lua disabled and depend on plain.
 if (MSVC)
   set(lua_flags "-wd4244 -wd4324 -wd4310 -wd4701 -wd4706")
+  set(common_libs "pf_core")
+	set(odbc_libs "${common_libs};odbc")
 endif()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
@@ -151,14 +153,13 @@ endif()
 if (pf_plugin_build_shared)
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
-  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "" ${LIB_LUA_SOURCES})
+  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "${common_libs}" ${LIB_LUA_SOURCES})
   if (NOT MSVC)
     set(cxx_default "${cxx_default} -pedantic")
-	  set(odbc_libs "odbc")
   endif()
 
   cxx_shared_library(pf_plugin_odbc "${cxx_default}" "${odbc_libs}" ${LIB_ODBC_SOURCES})
-  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "" ${LIB_PROTOCOL_SOURCES})
+  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "${common_libs}" ${LIB_PROTOCOL_SOURCES})
 else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")
