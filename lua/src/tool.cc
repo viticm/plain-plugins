@@ -257,7 +257,7 @@ int32_t base64_encode(lua_State *L) {
   SCRIPT_LUA_CHECKARGC(L, 1);
   std::string str = lua_tostringex(L, 1);
   auto r = pf_basic::base64_encode(
-      (const unsigned char *)str.c_str(), str.size()) ; 
+      (const unsigned char *)str.c_str(), (uint32_t)str.size()) ; 
   lua_pushstring(L, r.c_str());
   return 1;
 }

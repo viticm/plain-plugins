@@ -468,7 +468,7 @@ void System::gccheck(int32_t freetime) {
   int32_t turn = 0;
   uint32_t memorycount1;
   uint32_t memorycount2;
-  int32_t havetime = freetime;
+  uint64_t havetime = freetime;
   int32_t reclaim = 0;
   auto start_tickcount = TIME_MANAGER_POINTER->get_tickcount();
   for (turn = 0; turn < 3; ++turn) {
