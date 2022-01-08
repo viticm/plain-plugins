@@ -3,6 +3,9 @@
 #include "pf/plugin/protocol/normal_packet.h"
 #include "pf/plugin/protocol/basic.h"
 
+std::unique_ptr< pf_net::packet::FactoryManager >
+  g_packetfactory_manager{nullptr};
+
 namespace pf_plugin {
 
 namespace protocol {
