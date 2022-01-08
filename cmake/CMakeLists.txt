@@ -163,7 +163,7 @@ if (MSVC AND VERSION_RC)
   set(pf_plugin_protocol_version_rc "${CMAKE_BINARY_DIR}/pf_plugin_protocol.rc")
   configure_file(${VERSION_RC} ${pf_plugin_protocol_version_rc})
   set(PROJECT_NAME ${PROJECT_NAME_OLD})
-  set(PROJECT_DESC ${PROJECT_DESC})
+  set(PROJECT_DESC ${PROJECT_DESC_OLD})
 endif()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
