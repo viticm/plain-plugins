@@ -172,10 +172,10 @@ endif()
 if (pf_plugin_build_shared)
 
   #Dll export.
-  set(cxx_default "${cxx_default} -DPF_PLUGIN_BUILD_AS_DLL  -DPF_BUILD_AS_DLL")
+  set(cxx_default "${cxx_default} -DPF_PLUGIN_BUILD_AS_DLL -DPF_BUILD_AS_DLL")
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
-  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "${common_libs}" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
+  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags} -DLUA_BUILD_AS_DLL -DLUA_CORE" "${common_libs}" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
   if (NOT MSVC)
     set(cxx_default "${cxx_default} -pedantic")
   endif()
