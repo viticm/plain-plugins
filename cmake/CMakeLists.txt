@@ -80,14 +80,22 @@ if (NOT lua_version)
   set(lua_version 5.4.3)
 endif()
 
+if (NOT lua_dir)
+  set(lua_dir ${root_dir}/dependencies/lua/${lua_version}/src)
+endif()
+
+if (NOT MSVC AND not odbc_dir)
+  set(odbc_dir /usr/local/unixODBC/)
+endif()
+
 # Where Plain Framework's .h files can be found.
 include_directories(
-  "${plainframework_dir}/include"
-  "${root_dir}/lua/include"
-  "${root_dir}/odbc/include"
-  "${root_dir}/protocol/include"
-  "${root_dir}/dependencies/lua/${lua_version}/src"
-  "/usr/local/unixODBC/include")
+  ${plainframework_dir}/include
+  ${root_dir}/lua/include
+  ${root_dir}/odbc/include
+  ${root_dir}/protocol/include
+  ${lua_dir}
+  ${odbc_dir}/include)
 
 # Summary of tuple support for Microsoft Visual Studio:
 # Compiler    version(MS)  version(cmake)  Support
@@ -132,9 +140,9 @@ if (NOT has_output_path)
 endif()
 
 #The lua plugin with lua code.
-file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/*.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/lua.c")
-list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${root_dir}/dependencies/lua/${lua_version}/src/luac.c")
+file(GLOB_RECURSE LIB_DEPS_LUA_SOURCES "${lua_dir}/*.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${lua_dir}/lua.c")
+list(REMOVE_ITEM LIB_DEPS_LUA_SOURCES "${lua_dir}/luac.c")
 file(GLOB_RECURSE LIB_LUA_SOURCES "${root_dir}/lua/src/*.cc")
 list(APPEND LIB_LUA_SOURCES ${LIB_DEPS_LUA_SOURCES})
 
