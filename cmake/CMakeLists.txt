@@ -146,6 +146,8 @@ if (MSVC)
   set(cxx_default "${cxx_default} -DPF_PLUGIN_CORE")
   set(common_libs "pf_core")
   set(odbc_libs "odbc32")
+else()
+  set(odbc_libs "odbc")
 endif()
 
 # Version rc.
