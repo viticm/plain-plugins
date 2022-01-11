@@ -76,7 +76,9 @@ include(inc/internal_utils.cmake)
 
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
-set(lua_version 5.4.3)
+if (NOT lua_version)
+  set(lua_version 5.4.3)
+endif()
 
 # Where Plain Framework's .h files can be found.
 include_directories(
