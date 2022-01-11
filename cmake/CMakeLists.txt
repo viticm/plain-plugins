@@ -84,7 +84,7 @@ if (NOT lua_dir)
   set(lua_dir ${root_dir}/dependencies/lua/${lua_version}/src)
 endif()
 
-if (NOT MSVC AND not odbc_dir)
+if (NOT MSVC AND NOT odbc_dir)
   set(odbc_dir /usr/local/unixODBC/)
 endif()
 
