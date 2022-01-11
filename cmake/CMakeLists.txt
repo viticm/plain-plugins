@@ -168,6 +168,17 @@ if (MSVC AND VERSION_RC)
   set(PROJECT_DESC ${PROJECT_DESC_OLD})
 endif()
 
+if (NOT plugin_output_path)
+  set(plugin_output_path "plugin/")
+endif()
+file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${plugin_output_path})
+
+# Add lua library.
+function (cxx_plugin_library name flags libs)
+  cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${flags}" "${common_libs};${libs}" ${ARGN})
+  set_target_properties(${name} PROPERTIES PREFIX ${plugin_output_path})
+endfunction()
+
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
 # are used for other targets, to ensure that pf can be compiled by a user
 # aggressive about warnings.
@@ -180,13 +191,13 @@ if (pf_plugin_build_shared)
   if (MSVC)
     set(lua_flags "${lua_flags} -DLUA_BUILD_AS_DLL -DLUA_CORE")
   endif()
-  cxx_shared_library(pf_plugin_lua "${cxx_default} ${lua_flags}" "${common_libs}" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
+  cxx_plugin_library(pf_plugin_lua "${lua_flags}" "" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
   if (NOT MSVC)
     set(cxx_default "${cxx_default} -pedantic")
   endif()
 
-  cxx_shared_library(pf_plugin_odbc "${cxx_default}" "${odbc_libs};${common_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
-  cxx_shared_library(pf_plugin_protocol "${cxx_default}" "${common_libs}" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
+  cxx_shared_library(pf_plugin_odbc "" "${odbc_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
+  cxx_shared_library(pf_plugin_protocol "" "" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
 else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")
