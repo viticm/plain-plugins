@@ -178,6 +178,7 @@ if (MSVC AND VERSION_RC)
   set(PROJECT_DESC ${PROJECT_DESC_OLD})
 endif()
 
+# The plugin output path set.
 if (NOT plugin_output_path)
   set(plugin_output_path "plugin/")
 endif()
