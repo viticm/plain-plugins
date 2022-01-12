@@ -202,7 +202,7 @@ if (pf_plugin_build_shared)
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
   if (MSVC)
-    set(lua_flags "${lua_flags} -DLUA_BUILD_AS_DLL -DLUA_CORE")
+    set(lua_flags "${lua_flags} -DLUA_BUILD_AS_DLL")
   endif()
   cxx_plugin_library(pf_plugin_lua "${lua_flags}" "" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
   if (NOT MSVC)
