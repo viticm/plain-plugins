@@ -207,8 +207,8 @@ if (pf_plugin_build_shared)
     set(cxx_default "${cxx_default} -pedantic")
   endif()
 
-  cxx_shared_library(pf_plugin_odbc "" "${odbc_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
-  cxx_shared_library(pf_plugin_protocol "" "" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
+  cxx_plugin_library(pf_plugin_odbc "" "${odbc_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
+  cxx_plugin_library(pf_plugin_protocol "" "" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
 else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")
