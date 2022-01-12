@@ -76,12 +76,14 @@ include(inc/internal_utils.cmake)
 
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
+# Set lua version.
 if (NOT lua_version)
   set(lua_version 5.4.3)
 endif()
 
+# The lua global directory.
 if (NOT lua_dir)
-  set(lua_dir ${root_dir}/dependencies/lua/${lua_version}/src)
+  set(lua_dir ${root_dir}/dependencies/lua/${lua_version}/src CACHE INTERNAL "lua directory")
 endif()
 
 if (NOT MSVC AND NOT odbc_dir)
