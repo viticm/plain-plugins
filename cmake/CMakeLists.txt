@@ -180,7 +180,7 @@ endif()
 
 # The plugin output path set.
 if (NOT plugin_output_path)
-  set(plugin_output_path "plugin/")
+  set(plugin_output_path "plugins/")
 endif()
 file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${plugin_output_path})
 
