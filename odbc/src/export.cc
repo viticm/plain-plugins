@@ -7,7 +7,7 @@ pf_db::Interface *env_creator() {
 }
 
 extern "C"
-void pfopen_pf_plugin_odbc(void *_params) {
+PF_PLUGIN_API void pfopen_pf_plugin_odbc(void *_params) {
   auto params = *cast(const pf_basic::type::variable_array_t *, _params);
   auto type = (uint8_t)kDBEnvODBC;
   register_env_creator_db(type, env_creator);
