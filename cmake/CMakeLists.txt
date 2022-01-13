@@ -205,19 +205,21 @@ endfunction()
 if (pf_plugin_build_shared)
 
   #Dll export.
-  set(cxx_default "${cxx_default} -DPF_PLUGIN_BUILD_AS_DLL -DPF_BUILD_AS_DLL")
+  if (MSVC)
+    set(common_flags "${cxx_default} -DPF_PLUGIN_BUILD_AS_DLL -DPF_BUILD_AS_DLL")
+  endif()
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
   if (MSVC)
     set(lua_flags "${lua_flags} -DLUA_BUILD_AS_DLL")
   endif()
-  cxx_plugin_library(pf_plugin_lua "${lua_flags}" "" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
+  cxx_plugin_library(pf_plugin_lua "${common_flags} ${lua_flags}" "" ${LIB_LUA_SOURCES} ${pf_plugin_lua_version_rc})
   if (NOT MSVC)
     set(cxx_default "${cxx_default} -pedantic")
   endif()
 
-  cxx_plugin_library(pf_plugin_odbc "" "${odbc_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
-  cxx_plugin_library(pf_plugin_protocol "" "" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
+  cxx_plugin_library(pf_plugin_odbc "${common_flags}" "${odbc_libs}" ${LIB_ODBC_SOURCES} ${pf_plugin_odbc_version_rc})
+  cxx_plugin_library(pf_plugin_protocol "${common_flags}" "" ${LIB_PROTOCOL_SOURCES} ${pf_plugin_protocol_version_rc})
 else()
 
   string(REPLACE "-pedantic" "" cxx_strict "${cxx_strict}")

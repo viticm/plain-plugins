@@ -130,7 +130,7 @@ macro(config_compiler_and_linker)
   endif()
   
   # Plain Framework core flags.
-  set(cxx_base_flags "${cxx_base_flags} -DPF_CORE -DLUA_COMPAT_MODULE")
+  set(cxx_base_flags "${cxx_base_flags} -DPF_PLUGIN_CORE -DLUA_COMPAT_MODULE")
 
   if(CMAKE_SYSTEM MATCHES Linux)
     set(cxx_base_flags "${cxx_base_flags} -DLUA_USE_LINUX -DPF_OPEN_EPOLL")
