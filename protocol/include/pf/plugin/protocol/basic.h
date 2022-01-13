@@ -18,7 +18,7 @@ namespace pf_plugin {
 namespace protocol {
 
 /* Net packet factory init, you needn't it when you have your init for it. */
-bool init();
+PF_PLUGIN_API bool init();
 
 /* Get the packet handlers. */
 inline packet_handlers_t &get_packet_handlers() {

@@ -152,15 +152,16 @@ file(GLOB_RECURSE LIB_ODBC_SOURCES "${root_dir}/odbc/src/*.cc")
 
 file(GLOB_RECURSE LIB_PROTOCOL_SOURCES "${root_dir}/protocol/src/*.cc")
 
+set(lua_flags "-DLUA_COMPAT_MODULE")
 # For lua disabled and depend on plain.
 if (MSVC)
-  set(lua_flags "-wd4244 -wd4324 -wd4310 -wd4701 -wd4706")
-  set(cxx_default "${cxx_default} -DPF_PLUGIN_CORE")
+  set(lua_flags "${lua_flags} -wd4244 -wd4324 -wd4310 -wd4701 -wd4706")
   set(common_libs "pf_core")
   set(odbc_libs "odbc32")
 else()
   set(odbc_libs "odbc")
 endif()
+
 
 # Version rc.
 if (MSVC AND VERSION_RC)

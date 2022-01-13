@@ -35,7 +35,7 @@ namespace pf_plugin {
 
 namespace odbc {
 
-class PF_API Interface {
+class PF_PLUGIN_API Interface {
  public:
    enum {
      COLUMN_MAX = 100,

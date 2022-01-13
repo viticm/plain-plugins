@@ -19,7 +19,7 @@ namespace pf_plugin {
 
 namespace odbc {
 
-class PF_API System : public pf_db::Interface {
+class PF_PLUGIN_API System : public pf_db::Interface {
  public:
    enum dboption_type_t {
      kDBOptionTypeLoad,
