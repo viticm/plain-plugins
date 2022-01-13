@@ -189,7 +189,14 @@ file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${plugin_output_path})
 # Add lua library.
 function (cxx_plugin_library name flags libs)
   cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${flags}" "${common_libs};${libs}" ${ARGN})
-  set_target_properties(${name} PROPERTIES PREFIX ${plugin_output_path})
+  set_target_properties(${name}
+    PROPERTIES
+    PREFIX ${plugin_output_path}
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${plugin_output_path}"
+    PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
+  )
 endfunction()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
