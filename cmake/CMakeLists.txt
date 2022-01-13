@@ -191,7 +191,7 @@ function (cxx_plugin_library name flags libs)
   cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${flags}" "${common_libs};${libs}" ${ARGN})
   set_target_properties(${name}
     PROPERTIES
-    PREFIX ${plugin_output_path}
+    PREFIX ""
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
