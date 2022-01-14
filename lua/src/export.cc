@@ -1,4 +1,5 @@
 #include "pf/plugin/lua/export.h"
+#include "pf/engine/kernel.h"
 #include "pf/plugin/lua/system.h"
 
 pf_script::Interface *env_creator() {
@@ -6,9 +7,10 @@ pf_script::Interface *env_creator() {
 }
 
 extern "C"
-PF_PLUGIN_API void pfopen_pf_plugin_lua(void *_params) {
+PF_PLUGIN_API void 
+pfopen_pf_plugin_lua(pf_engine::Kernel *engine, void *_params) {
   auto params = *cast(const pf_basic::type::variable_array_t *, _params);
   if (params.size() <= 0) return;
   auto type = params[0].get<int8_t>();
-  register_env_creator_script(type, env_creator);
+  engine->register_script(type, env_creator);
 }
