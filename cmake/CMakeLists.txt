@@ -71,7 +71,7 @@ endif()
 
 # Define helper functions and macros used by Plain Framework.
 include(inc/internal_utils.cmake)
-
+set(pf_plugin_force_shared_crt ON)
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
 # Set lua version.
