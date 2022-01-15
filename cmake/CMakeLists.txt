@@ -7,7 +7,7 @@
 
 # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
 # make it prominent in the GUI.
-option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." ON)
 
 # When other libraries are using a shared version of runtime libraries,
 # Plain Framework also has to use one.
@@ -18,11 +18,13 @@ option(
 
 option(pf_plugin_build_tests "Build all of pf's own tests." OFF)
 
-option(pf_plugin_build_shared "Build all of pf as share library." OFF)
+option(pf_plugin_build_shared "Build all of pf as share library." ON)
 
 option(pf_plugin_build_samples "Build pf's sample programs." OFF)
 
 option(pf_plugin_disable_pthreads "Disable uses of pthreads in pf." OFF)
+
+option(INSTALL_PF_PLUGIN "Install plain framework" ON)
 
 option(
   pf_plugin_hide_internal_symbols
@@ -115,9 +117,6 @@ endif()
 #
 # Defines the pf_plugin * libraries.  User tests should link
 # with one of them.
-
-set(pf_plugin_build_shared ON)
-set(INSTALL_PF_PLUGIN ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
