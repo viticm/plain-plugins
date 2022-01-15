@@ -606,6 +606,7 @@ int32_t Interface::get_field(int32_t column_index,
 }
 
 void Interface::diag_state() {
+  using namespace pf_basic::string;
   int32_t j = 1;
   SQLINTEGER native_error;
   sql_char_t sql_state[6] = {0};
@@ -653,11 +654,13 @@ void Interface::diag_state() {
     error_message_);
   save_error_log(error_buffer);
 #else
+  std::wstring temp{error_message_};
+  std::string err_str = wstr2str(temp);
   snprintf(error_buffer,
     sizeof(error_buffer) - 1,
-    "error code: %d, error msg: %ws",
+    "error code: %d, error msg: %s",
     static_cast<int32_t>(error_code_),
-    error_message_);
+    err_str.c_str());
   save_error_log(error_buffer);
 #endif // !UNICODE
 }
