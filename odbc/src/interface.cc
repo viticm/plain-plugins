@@ -15,7 +15,7 @@ Interface::Interface()
   result_{SQL_SUCCESS},
   connection_name_{0},
   user_{0},
-  password_{0}, 
+  password_{0},
   affect_count_{-1},
   sql_hstmt_{nullptr},
   column_count_{0},
@@ -47,16 +47,16 @@ bool Interface::connect(const char *connection_name,
   using namespace pf_basic;
   close(); //first disconnect
   if (connection_name != nullptr)
-    string::safecopy(connection_name_, 
-                     connection_name, 
+    string::safecopy(connection_name_,
+                     connection_name,
                      sizeof(connection_name_));
   if (user != nullptr) string::safecopy(user_, user, sizeof(user_));
   if (password != nullptr)
     string::safecopy(password_, password, sizeof(password_));
   SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_henv_);
-  SQLSetEnvAttr(sql_henv_, 
-                SQL_ATTR_ODBC_VERSION, 
-                reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 
+  SQLSetEnvAttr(sql_henv_,
+                SQL_ATTR_ODBC_VERSION,
+                reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3),
                 SQL_IS_INTEGER);
   SQLAllocHandle(SQL_HANDLE_DBC, sql_henv_, &sql_hdbc_);
   //Some error in SQLConnect will lost memory.
@@ -70,14 +70,14 @@ bool Interface::connect(const char *connection_name,
   if (SQL_SUCCESS != result_ && SQL_SUCCESS_WITH_INFO != result_) {
     char log_buffer[512];
     memset(log_buffer, '\0', sizeof(log_buffer));
-    snprintf(log_buffer, 
+    snprintf(log_buffer,
              sizeof(log_buffer) - 1,
-             "connection name: %s, connect username: %s, password: %s", 
+             "connection name: %s, connect username: %s, password: %s",
              connection_name_,
              user_,
              password);
-    SLOW_ERRORLOG(DB_MODULENAME, 
-                  "[db.odbc] (Interface::connect) failed. %s", 
+    SLOW_ERRORLOG(DB_MODULENAME,
+                  "[db.odbc] (Interface::connect) failed. %s",
                   log_buffer);
     diag_state();
     return false;
@@ -95,9 +95,9 @@ bool Interface::connect() {
   close(); //first disconnect
 #ifdef MUST_CLOSE_HENV_HANDLE
   SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_henv_);
-  SQLSetEnvAttr(sql_henv_, 
-                SQL_ATTR_ODBC_VERSION, 
-                static_cast<SQLPOINTER>(SQL_OV_ODBC3), 
+  SQLSetEnvAttr(sql_henv_,
+                SQL_ATTR_ODBC_VERSION,
+                static_cast<SQLPOINTER>(SQL_OV_ODBC3),
                 SQL_IS_INTEGER);
 #endif
   SQLAllocHandle(SQL_HANDLE_DBC, sql_henv_, &sql_hdbc_);
@@ -111,13 +111,13 @@ bool Interface::connect() {
   if (result_ != SQL_SUCCESS && result_ != SQL_SUCCESS_WITH_INFO) {
     char log_buffer[512];
     memset(log_buffer, '\0', sizeof(log_buffer));
-    snprintf(log_buffer, 
+    snprintf(log_buffer,
              sizeof(log_buffer) - 1,
-             "connection name: %s connect user: %s", 
+             "connection name: %s connect user: %s",
              connection_name_,
-             user_); 
-    SLOW_ERRORLOG(DB_MODULENAME, 
-                  "[db.odbc] (Interface::connect) failed, %s", 
+             user_);
+    SLOW_ERRORLOG(DB_MODULENAME,
+                  "[db.odbc] (Interface::connect) failed, %s",
                   log_buffer);
     diag_state();
     return false;
@@ -179,7 +179,7 @@ bool Interface::collect_resultinfo() {
   column_names_ = reinterpret_cast<char **>(
       column_info_allocator_.calloc(sizeof(char *), column_count_ + 1));
   column_values_ = reinterpret_cast<char **>(
-      column_info_allocator_.calloc(sizeof(char *), column_count_ + 1)); 
+      column_info_allocator_.calloc(sizeof(char *), column_count_ + 1));
   column_valuelengths_ = reinterpret_cast<SQLINTEGER *>(
       column_info_allocator_.calloc(sizeof(SQLINTEGER), column_count_ + 1));
   column_type_ = reinterpret_cast<SQLSMALLINT *>(
@@ -195,22 +195,22 @@ bool Interface::collect_resultinfo() {
   for (SQLUSMALLINT column = 0; column < column_count_; ++column) {
     sql_char_t name[DB_ODBC_COLUMN_NAME_LENGTH_MAX]{0};
     SQLSMALLINT namelength = 0;
-    if (failed(SQLDescribeCol(sql_hstmt_, 
-                              column + 1, 
-                              name, 
-                              sizeof(name), 
-                              &namelength, 
-                              column_type_ + column, 
-                              column_size_ + column, 
-                              column_precision_ + column, 
+    if (failed(SQLDescribeCol(sql_hstmt_,
+                              column + 1,
+                              name,
+                              sizeof(name),
+                              &namelength,
+                              column_type_ + column,
+                              column_size_ + column,
+                              column_precision_ + column,
                               column_nullable_ + column))) {
       return false;
     }
     name[namelength] = '\0';
     column_names_[column] = reinterpret_cast<char *>(
         column_info_allocator_.calloc(namelength + 1));
-    string::safecopy(column_names_[column], 
-                     reinterpret_cast<const char *>(name), 
+    string::safecopy(column_names_[column],
+                     reinterpret_cast<const char *>(name),
                      namelength + 1);
   }
   return true;
@@ -219,10 +219,10 @@ bool Interface::collect_resultinfo() {
 bool Interface::execute(const std::string &sql_str) {
   try {
     //int column_index;
-    result_ = SQLExecDirect(sql_hstmt_, 
-                            cast(sql_char_t *, sql_str.c_str()), 
+    result_ = SQLExecDirect(sql_hstmt_,
+                            cast(sql_char_t *, sql_str.c_str()),
                             SQL_NTS);
-    if ((result_ != SQL_SUCCESS) && 
+    if ((result_ != SQL_SUCCESS) &&
         (result_ != SQL_SUCCESS_WITH_INFO) &&
         (result_ != SQL_NO_DATA)) {
       diag_state();
@@ -273,8 +273,8 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
       return false;
     }
   } else {
-    resultcode = SQLFetchScroll(sql_hstmt_, 
-                                static_cast<SQLSMALLINT>(orientation), 
+    resultcode = SQLFetchScroll(sql_hstmt_,
+                                static_cast<SQLSMALLINT>(orientation),
                                 offset);
     if (failed(resultcode)) {
       if (resultcode != SQL_NO_DATA) diag_state();
@@ -287,11 +287,11 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
     SQLLEN data_length;
     SQLSMALLINT fetchtype = get_typemapping(column_type_[column]);
     if (fetchtype != SQL_C_BINARY) fetchtype = SQL_C_CHAR;
-    resultcode = SQLGetData(sql_hstmt_, 
-                            column + 1, 
-                            fetchtype, 
-                            work_data, 
-                            sizeof(work_data) - 1, 
+    resultcode = SQLGetData(sql_hstmt_,
+                            column + 1,
+                            fetchtype,
+                            work_data,
+                            sizeof(work_data) - 1,
                             &data_length);
     if (failed(resultcode)) {
       if (resultcode != SQL_NO_DATA) diag_state();
@@ -304,7 +304,7 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
       if (data_length > static_cast<SQLLEN>(sizeof(work_data) - 1)) {
         data_length = static_cast<SQLLEN>(sizeof(work_data) - 1);
         if (SQL_C_CHAR == fetchtype) {
-          while((data_length > 1) && (0 == work_data[data_length - 1])) 
+          while((data_length > 1) && (0 == work_data[data_length - 1]))
             --data_length;
         }
       }
@@ -315,10 +315,10 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
       column_valuelengths_[column] = static_cast<SQLINTEGER>(data_length);
       for (;;) {
         SQLINTEGER chunklength;
-        resultcode = SQLGetData(sql_hstmt_, 
-                                static_cast<SQLSMALLINT>(column) + 1, 
-                                fetchtype, 
-                                work_data, 
+        resultcode = SQLGetData(sql_hstmt_,
+                                static_cast<SQLSMALLINT>(column) + 1,
+                                fetchtype,
+                                work_data,
                                 sizeof(work_data) - 1,
                                 &data_length);
         if (SQL_NO_DATA == resultcode) break;
@@ -326,11 +326,11 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
           if (resultcode != SQL_NO_DATA) diag_state();
           return false;
         }
-        if (data_length > static_cast<SQLLEN>(sizeof(work_data) - 1) && 
+        if (data_length > static_cast<SQLLEN>(sizeof(work_data) - 1) &&
             SQL_NO_TOTAL == data_length) {
           chunklength = sizeof(work_data) - 1;
           if (SQL_C_CHAR == fetchtype) {
-            while((chunklength > 1) && (work_data[chunklength - 1] == 0)) 
+            while((chunklength > 1) && (work_data[chunklength - 1] == 0))
               --chunklength;
           }
         } else {
@@ -341,8 +341,8 @@ bool Interface::fetch(int32_t orientation, int32_t offset) {
             column_value_allocator_.realloc(
               column_values_[column],
               column_valuelengths_[column] + chunklength + 1));
-        memcpy(column_values_[column] + column_valuelengths_[column], 
-               work_data, 
+        memcpy(column_values_[column] + column_valuelengths_[column],
+               work_data,
                chunklength);
         column_values_[column][data_length] = '\0';
       } //for
@@ -440,7 +440,7 @@ int16_t Interface::get_int16(int32_t column_index, int32_t &error_code) {
 }
 
 uint16_t Interface::get_uint16(int32_t column_index, int32_t &error_code) {
-  uint16_t result = 
+  uint16_t result =
     static_cast<uint16_t>(get_int32(column_index, error_code));
   return result;
 }
@@ -455,9 +455,9 @@ uint8_t Interface::get_uint8(int32_t column_index, int32_t &error_code) {
   return result;
 }
 
-int32_t Interface::get_string(int32_t column_index, 
-                              char *buffer, 
-                              int32_t buffer_length, 
+int32_t Interface::get_string(int32_t column_index,
+                              char *buffer,
+                              int32_t buffer_length,
                               int32_t &error_code) {
   if (column_index >= column_count_) {
     error_code = QUERY_NO_COLUMN;
@@ -475,9 +475,9 @@ int32_t Interface::get_string(int32_t column_index,
       strncpy(buffer, get_data(column_index), buffer_length);
     } else {
       char message[8092] = {0};
-      snprintf(message, 
-               sizeof(message) - 1, 
-               "buffer_length: %d, data_length: %d, data: %s", 
+      snprintf(message,
+               sizeof(message) - 1,
+               "buffer_length: %d, data_length: %d, data: %s",
                buffer_length,
                data_length,
                get_data(column_index));
@@ -489,9 +489,9 @@ int32_t Interface::get_string(int32_t column_index,
   return QUERY_NO_COLUMN;
 }
 
-int32_t Interface::get_binary(int32_t column_index, 
-                              char *buffer, 
-                              int32_t buffer_length, 
+int32_t Interface::get_binary(int32_t column_index,
+                              char *buffer,
+                              int32_t buffer_length,
                               int32_t &error_code) {
   if (column_index >= column_count_) {
     error_code = QUERY_NO_COLUMN;
@@ -509,9 +509,9 @@ int32_t Interface::get_binary(int32_t column_index,
       memcpy(buffer, get_data(column_index), buffer_length);
     } else {
       char message[8092] = {0};
-      snprintf(message, 
-               sizeof(message) - 1, 
-               "buffer_length: %d, data_length: %d, data: %s", 
+      snprintf(message,
+               sizeof(message) - 1,
+               "buffer_length: %d, data_length: %d, data: %s",
                buffer_length,
                data_length,
                get_data(column_index));
@@ -522,10 +522,10 @@ int32_t Interface::get_binary(int32_t column_index,
   }
   return QUERY_NO_COLUMN;
 }
-   
-int32_t Interface::get_binary_withdecompress(int32_t column_index, 
-                                             char *buffer, 
-                                             int32_t buffer_length, 
+
+int32_t Interface::get_binary_withdecompress(int32_t column_index,
+                                             char *buffer,
+                                             int32_t buffer_length,
                                              int32_t &error_code) {
   if (column_index >= column_count_) {
     error_code = QUERY_NO_COLUMN;
@@ -547,19 +547,19 @@ int32_t Interface::get_binary_withdecompress(int32_t column_index,
       Assert(false);
       return 0;
     }
-    int32_t decompress_buffersize = 
+    int32_t decompress_buffersize =
       static_cast<int32_t>(getcompressor()->get_decompress_buffersize());
     if (decompress_buffersize > buffer_length) {
       char message[8092] = {0};
-      snprintf(message, 
-               sizeof(message) - 1, 
-               "decompress size: %d, realsize: %d", 
+      snprintf(message,
+               sizeof(message) - 1,
+               "decompress size: %d, realsize: %d",
                getcompressor()->get_decompress_buffersize(),
                data_length);
       AssertEx(false, message);
     }
-    memcpy(buffer, 
-           getcompressor()->get_decompress_buffer(), 
+    memcpy(buffer,
+           getcompressor()->get_decompress_buffer(),
            getcompressor()->get_decompress_buffersize());
     int32_t result = getcompressor()->get_decompress_buffersize();
     return result;
@@ -567,9 +567,9 @@ int32_t Interface::get_binary_withdecompress(int32_t column_index,
   return 0;
 }
 
-int32_t Interface::get_field(int32_t column_index, 
-                             char *buffer, 
-                             int32_t buffer_length, 
+int32_t Interface::get_field(int32_t column_index,
+                             char *buffer,
+                             int32_t buffer_length,
                              int32_t &error_code) {
   if (column_index >= column_count_) {
     error_code = QUERY_NO_COLUMN;
@@ -583,16 +583,16 @@ int32_t Interface::get_field(int32_t column_index,
     //Assert(false);
   } else {
     uint32_t out_length = 0;
-    pf_basic::util::string_tobinary(get_data(column_index), 
-                                    get_datalength(column_index), 
-                                    buffer, 
-                                    buffer_length, 
+    pf_basic::util::string_tobinary(get_data(column_index),
+                                    get_datalength(column_index),
+                                    buffer,
+                                    buffer_length,
                                     out_length);
     if (static_cast<int32_t>(out_length) <= buffer_length) {
       error_code = QUERY_OK;
     } else {
       char message[8092] = {0};
-      snprintf(message, 
+      snprintf(message,
                sizeof(message) - 1,
                "buffer_length: %d, data_length: %d, data: %s",
                buffer_length,
@@ -612,27 +612,33 @@ void Interface::diag_state() {
   sql_char_t sql_state[6] = {0};
   SQLSMALLINT msg_length;
   memset(error_message_, 0, ERROR_MESSAGE_LENGTH_MAX);
-  while ((result_ = SQLGetDiagRec(SQL_HANDLE_DBC, 
+  while ((result_ = SQLGetDiagRec(SQL_HANDLE_DBC,
                                   sql_hdbc_,
-                                  static_cast<SQLUSMALLINT>(j), 
+                                  static_cast<SQLUSMALLINT>(j),
                                   sql_state,
                                   &native_error,
-                                  error_message_, 
-                                  sizeof(error_message_), 
+                                  (sql_char_t *)error_message_,
+                                  sizeof(error_message_),
                                   &msg_length)) != SQL_NO_DATA) {
     ++j;
   }
   error_message_[ERROR_MESSAGE_LENGTH_MAX - 1] = '\0';
-  if (0 == strlen(reinterpret_cast<const char*>(error_message_))) {
+  if (0 == strlen(error_message_)) {
     result_ = SQLError(sql_henv_,
                        sql_hdbc_,
                        sql_hstmt_,
                        sql_state,
                        &native_error,
-                       error_message_,
+                       (sql_char_t *)error_message_,
                        sizeof(error_message_),
                        &msg_length);
   }
+  error_message_[ERROR_MESSAGE_LENGTH_MAX - 1] = '\0';
+#ifndef UNICODE
+  auto temp = wstr2str(error_message_);
+  memset(error_message_, 0, ERROR_MESSAGE_LENGTH_MAX);
+  strncpy(error_message_, temp.c_str(), temp.size());
+#endif
   error_code_ = native_error;
   switch (error_code_) {
     case 2601: { //repeat
@@ -646,23 +652,12 @@ void Interface::diag_state() {
     }
   }
   char error_buffer[2048]{0};
-#ifndef UNICODE
   snprintf(error_buffer,
     sizeof(error_buffer) - 1,
     "error code: %d, error msg: %s",
     static_cast<int32_t>(error_code_),
     error_message_);
   save_error_log(error_buffer);
-#else
-  std::wstring temp{error_message_};
-  std::string err_str = wstr2str(temp);
-  snprintf(error_buffer,
-    sizeof(error_buffer) - 1,
-    "error code: %d, error msg: %s",
-    static_cast<int32_t>(error_code_),
-    err_str.c_str());
-  save_error_log(error_buffer);
-#endif // !UNICODE
 }
 
 void Interface::save_error_log(const char *log) {
@@ -697,7 +692,7 @@ void Interface::clear_env() {
 //dump field
 void Interface::dump(int32_t column_index) {
   char filename[FILENAME_MAX] = {0};
-  snprintf(filename, 
+  snprintf(filename,
            sizeof(filename) - 1,
            "./log/dbfield_%.4d-%.2d-%.2d.log",
            TIME_MANAGER_POINTER->get_year(),
@@ -706,16 +701,16 @@ void Interface::dump(int32_t column_index) {
   FILE *fp = fopen(filename, "a");
   if (fp) {
     fwrite("begin", 1, 5, fp);
-    fwrite(get_data(column_index), 
-           1, 
-           get_datalength(column_index), 
+    fwrite(get_data(column_index),
+           1,
+           get_datalength(column_index),
            fp);
     fclose(fp);
   }
 }
 
 SQLSMALLINT Interface::get_typemapping(SQLSMALLINT typecode) {
-  SQLSMALLINT type = typecode; 
+  SQLSMALLINT type = typecode;
   switch (typecode) {
     case SQL_CHAR:
       break;

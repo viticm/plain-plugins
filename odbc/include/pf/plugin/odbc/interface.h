@@ -180,7 +180,7 @@ class PF_PLUGIN_API Interface {
    pf_util::compressor::Mini compressor_;
 
    SQLINTEGER error_code_;
-   sql_char_t error_message_[ERROR_MESSAGE_LENGTH_MAX];
+   char error_message_[ERROR_MESSAGE_LENGTH_MAX];
 
 };
 
