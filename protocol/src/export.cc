@@ -1,3 +1,4 @@
+#include "pf/engine/kernel.h"
 #include "pf/net/protocol/helpers.h"
 #include "pf/plugin/protocol/tlbb.h"
 #include "pf/plugin/protocol/export.h"
