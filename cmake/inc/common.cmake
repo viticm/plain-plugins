@@ -39,9 +39,15 @@ endfunction()
 
 # Safe add_subdirectory.
 function(add_subdir target target_build project)
-  set(old_root_dir${project} ${root_dir} CACHE INTERNAL "root dir cache")
+  if (set_compiler_flags_for_external_libraries)
+    set_compiler_flags_for_external_libraries()
+  endif()
+  set(saved_root_dir${project} ${root_dir} CACHE INTERNAL "root dir cache")
   add_subdirectory(${target} ${target_build})
-  set(root_dir ${old_root_dir${project}} CACHE INTERNAL "root dir recover")
+  set(root_dir ${saved_root_dir${project}} CACHE INTERNAL "root dir recover")
+  if (restore_compiler_flags)
+    restore_compiler_flags()
+  endif()
 endfunction(add_subdir)
 
 # Sets and caches `var` to the first path in 'paths' that exists.

@@ -29,6 +29,9 @@ option(
 
 set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Generate debug library name with a postfix.")
 
+# Windows crt.
+set(pf_plugin_force_shared_crt pf_plugin_build_shared)
+
 # Defines pre_project_set_up_hermetic_build() and set_up_hermetic_build().
 include(inc/common.cmake OPTIONAL)
 include(inc/hermetic_build.cmake OPTIONAL)
@@ -71,7 +74,6 @@ endif()
 
 # Define helper functions and macros used by Plain Framework.
 include(inc/internal_utils.cmake)
-set(pf_plugin_force_shared_crt ON)
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
 # Set lua version.
