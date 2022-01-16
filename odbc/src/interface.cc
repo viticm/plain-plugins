@@ -634,8 +634,8 @@ void Interface::diag_state() {
                        &msg_length);
   }
   error_message_[ERROR_MESSAGE_LENGTH_MAX - 1] = '\0';
-#ifndef UNICODE
-  auto temp = wstr2str(error_message_);
+#ifdef UNICODE
+  auto temp = wstr2str((sql_char_t *)error_message_);
   memset(error_message_, 0, ERROR_MESSAGE_LENGTH_MAX);
   strncpy(error_message_, temp.c_str(), temp.size());
 #endif
