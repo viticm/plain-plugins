@@ -5,6 +5,30 @@
 # ctest.  You can select which tests to run using 'ctest -R regex'.
 # For more options, run 'ctest --help'.
 
+cmake_minimum_required(VERSION 2.8.12)
+
+########################################################################
+#
+# Project-wide settings
+
+# Name of the project.
+#
+# CMake files in this project can refer to the root source directory
+# as ${root_dir} and to the root binary directory as
+# ${pf_plugin_BINARY_DIR}.
+# Language "C" is required for find_package(Threads).
+set(PF_PLUGIN_VERSION 1.0.0)
+if (CMAKE_VERSION VERSION_LESS 3.0)
+  project(pf_plugin CXX C)
+else()
+  cmake_policy(SET CMP0048 NEW)
+  project(pf_plugin VERSION ${PF_PLUGIN_VERSION} LANGUAGES CXX C)
+endif()
+
+if (POLICY CMP0063) # Visibility
+  cmake_policy(SET CMP0063 NEW)
+endif (POLICY CMP0063)
+
 # When other libraries are using a shared version of runtime libraries,
 # Plain Framework also has to use one.
 option(
@@ -39,29 +63,6 @@ include(inc/hermetic_build.cmake OPTIONAL)
 if (COMMAND pre_project_set_up_hermetic_build)
   pre_project_set_up_hermetic_build()
 endif()
-
-########################################################################
-#
-# Project-wide settings
-
-# Name of the project.
-#
-# CMake files in this project can refer to the root source directory
-# as ${root_dir} and to the root binary directory as
-# ${pf_plugin_BINARY_DIR}.
-# Language "C" is required for find_package(Threads).
-set(PF_PLUGIN_VERSION 1.0.0)
-if (CMAKE_VERSION VERSION_LESS 3.0)
-  project(pf_plugin CXX C)
-else()
-  cmake_policy(SET CMP0048 NEW)
-  project(pf_plugin VERSION ${PF_PLUGIN_VERSION} LANGUAGES CXX C)
-endif()
-cmake_minimum_required(VERSION 2.8.12)
-
-if (POLICY CMP0063) # Visibility
-  cmake_policy(SET CMP0063 NEW)
-endif (POLICY CMP0063)
 
 if (COMMAND set_up_hermetic_build)
   set_up_hermetic_build()
@@ -159,7 +160,6 @@ else()
   set(odbc_libs "odbc")
 endif()
 
-
 # Version rc.
 if (MSVC AND VERSION_RC)
   set(PROJECT_NAME_OLD ${PROJECT_NAME})
@@ -186,7 +186,7 @@ file(MAKE_DIRECTORY ${LIBRARY_OUTPUT_PATH}/${plugin_output_path})
 
 # Add lua library.
 function (cxx_plugin_library name flags libs)
-  cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${common_flags} ${flags}" "${common_libs};${libs}" ${ARGN})
+  cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${common_flags} ${flags}" ${ARGN})
   set_target_properties(${name}
     PROPERTIES
     # PREFIX ""
@@ -195,6 +195,7 @@ function (cxx_plugin_library name flags libs)
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
     PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
   )
+  target_link_libraries(${name} PUBLIC "${common_libs};${libs}")
 endfunction()
 
 # Plain Framework plugin libraries.  We build them using more strict warnings than what
