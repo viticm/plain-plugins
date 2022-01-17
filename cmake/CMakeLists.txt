@@ -189,6 +189,7 @@ function (cxx_plugin_library name flags libs)
   cxx_shared_library(${name} "${cxx_base_flags} ${cxx_default} ${common_flags} ${flags}" ${ARGN})
   set_target_properties(${name}
     PROPERTIES
+    DEFINE_SYMBOL PF_PLUGIN_BUILD_AS_DLL
     # PREFIX ""
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
@@ -205,7 +206,7 @@ if (pf_plugin_build_shared)
 
   #Dll export.
   if (MSVC)
-    set(common_flags "-DPF_PLUGIN_BUILD_AS_DLL -DPF_BUILD_AS_DLL")
+    set(common_flags "-DPF_PLUGIN_CORE -DPF_BUILD_AS_DLL")
   endif()
 
   string(REPLACE "-pedantic" "" cxx_default "${cxx_default}")
