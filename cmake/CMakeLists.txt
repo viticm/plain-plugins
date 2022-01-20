@@ -201,7 +201,7 @@ function (cxx_plugin_library name flags libs)
     # PREFIX ""
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
+    ARCHIVE_OUTPUT_DIRECTORY "${LIBRARY_OUTPUT_PATH}/${plugin_output_path}"
     PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${plugin_output_path}"
   )
   target_link_libraries(${name} PUBLIC "${common_libs};${libs}")
