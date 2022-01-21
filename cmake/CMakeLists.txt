@@ -54,7 +54,7 @@ option(
 set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Generate debug library name with a postfix.")
 
 # Windows crt.
-set(pf_plugin_force_shared_crt pf_plugin_build_shared)
+set(pf_plugin_force_shared_crt ${pf_plugin_build_shared})
 
 # Defines pre_project_set_up_hermetic_build() and set_up_hermetic_build().
 include(inc/common.cmake OPTIONAL)
