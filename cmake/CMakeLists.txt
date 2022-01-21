@@ -51,8 +51,6 @@ option(
   "Build pf with internal symbols hidden in shared libraries."
   OFF)
 
-set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Generate debug library name with a postfix.")
-
 # Windows crt.
 set(pf_plugin_force_shared_crt ${pf_plugin_build_shared})
 
